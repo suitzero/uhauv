@@ -342,6 +342,11 @@ scene.add(icon);
 const DOCK_POS = PAD_POS.clone();
 DOCK_POS.y += 0.5; // Target height above pad
 
+const dockLight = new THREE.PointLight(0xffaa00, 1.5, 30);
+dockLight.position.copy(DOCK_POS);
+dockLight.position.y += 2;
+scene.add(dockLight);
+
 // ══════════════════════════════════════════════════════════
 // DEBRIS SYSTEM — 쓰레기!
 // ══════════════════════════════════════════════════════════
@@ -438,64 +443,121 @@ function randInSector(sec){
   );
 }
 
+// ══════════════════════════════════════════════════════════
+// ROBOT DESIGN (AMPHIBIOUS)
+// ══════════════════════════════════════════════════════════
+const MAT = {
+  hull:    c => new THREE.MeshPhongMaterial({color:c, shininess:80}),
+  metal:   c => new THREE.MeshPhongMaterial({color:c, shininess:120, specular:0xffffff}),
+  rubber:  c => new THREE.MeshPhongMaterial({color:c, shininess:10, flatShading:true}),
+  glow:    (c,e) => new THREE.MeshPhongMaterial({color:c, emissive:e||c, emissiveIntensity:0.6, shininess:30}),
+  glass:   c => new THREE.MeshPhongMaterial({color:c, transparent:true, opacity:0.35, shininess:120}),
+  wire:    c => new THREE.MeshBasicMaterial({color:c, wireframe:true}),
+};
+
 function mkRoboMesh(color){
   const g=new THREE.Group();
+  const scale = 0.15; // Scale down from design file size
+  const body = new THREE.Group();
 
-  // 1. CHASSIS (Wedge Shape - Tank Style)
+  // === CHASSIS ===
   const shape = new THREE.Shape();
-  shape.moveTo(0,0);
-  shape.lineTo(0.8, 0);      // Bottom
-  shape.lineTo(0.8, 0.35);   // Back
-  shape.lineTo(0.3, 0.45);   // Top slope start
-  shape.lineTo(0, 0.15);     // Nose
-  shape.lineTo(0,0);
+  // Design file shape (Type A)
+  shape.moveTo(0, 0);
+  shape.lineTo(6, 0);      // Bottom
+  shape.lineTo(6, 2.5);    // Rear Height
+  shape.lineTo(2, 2.0);    // Top slope
+  shape.lineTo(0, 0.5);    // Nose
+  shape.lineTo(0, 0);
 
-  const extrudeSettings = { steps: 1, depth: 0.6, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 2 };
+  const extrudeSettings = { steps: 1, depth: 4, bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.1, bevelSegments: 2 };
   const chassisGeo = new THREE.ExtrudeGeometry( shape, extrudeSettings );
   chassisGeo.center();
 
-  const chassis = new THREE.Mesh(chassisGeo, new THREE.MeshPhongMaterial({color, emissive:color, emissiveIntensity:.3, shininess:80}));
-  // Align so +Z is forward (Nose). Extrusion is along Z by default.
-  // We rotate Y-90 to align shape length (X) to Z.
-  chassis.rotation.y = -Math.PI/2;
-  g.add(chassis);
+  // Use robot color for hull to distinguish them
+  const chassisMat = MAT.hull(color);
+  const chassis = new THREE.Mesh(chassisGeo, chassisMat);
+  body.add(chassis);
 
-  // 2. TRACKS (Silicone Treads)
-  // Long along Z axis.
-  const trackGeo = new THREE.BoxGeometry(0.15, 0.22, 0.9);
-  const trackMat = new THREE.MeshPhongMaterial({color:0x111111, bumpScale:0.05});
+  // Wireframe
+  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(chassisGeo), new THREE.LineBasicMaterial({color: 0x00d4ff, transparent:true, opacity:0.3}));
+  body.add(edges);
 
-  const leftTrack = new THREE.Mesh(trackGeo, trackMat);
-  leftTrack.position.set(-0.35, -0.15, 0);
-  g.add(leftTrack);
+  // === TRACKS ===
+  const trackGeo = new THREE.BoxGeometry(7.0, 1.8, 0.8);
+  const trackMat = MAT.rubber(0x111111);
 
-  const rightTrack = new THREE.Mesh(trackGeo, trackMat);
-  rightTrack.position.set(0.35, -0.15, 0);
-  g.add(rightTrack);
+  const tLeft = new THREE.Mesh(trackGeo, trackMat);
+  tLeft.position.set(0, -0.5, 2.2);
+  body.add(tLeft);
 
-  // 3. VERTICAL THRUSTERS (Hydrodynamic Downforce - Rear mounted)
-  const thrustGeo = new THREE.CylinderGeometry(0.1, 0.08, 0.15, 16);
-  const thrustMat = new THREE.MeshPhongMaterial({color:0x444444});
+  const tRight = new THREE.Mesh(trackGeo, trackMat);
+  tRight.position.set(0, -0.5, -2.2);
+  body.add(tRight);
 
-  const tLeft = new THREE.Mesh(thrustGeo, thrustMat);
-  tLeft.position.set(-0.25, 0.25, -0.3);
-  g.add(tLeft);
+  // Treads
+  for(let side of [1, -1]) {
+    for(let i=0; i<10; i++) {
+      const tread = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.85, 0.85), MAT.metal(0x222222));
+      tread.position.set(-3 + i*0.7, -0.5, side*2.2);
+      body.add(tread);
+    }
+  }
 
-  const tRight = new THREE.Mesh(thrustGeo, thrustMat);
-  tRight.position.set(0.25, 0.25, -0.3);
-  g.add(tRight);
+  // === TWIN REAR THRUSTERS ===
+  const thrusterGrp = new THREE.Group();
+  thrusterGrp.position.set(3.2, 0, 0); // Rear
+  for(let side of [1, -1]) {
+    const tBody = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.4, 1.2, 16), MAT.metal(0x333333));
+    tBody.rotation.z = Math.PI/2;
+    tBody.position.set(0, 0.5, side * 1.5);
+    thrusterGrp.add(tBody);
 
-  // Propellers inside thrusters
-  const propGeo = new THREE.PlaneGeometry(0.14, 0.02);
-  const propMat = new THREE.MeshBasicMaterial({color:0x00ff88, side:THREE.DoubleSide});
-  const p1 = new THREE.Mesh(propGeo, propMat); p1.rotation.x=Math.PI/2; p1.position.y=0.08; tLeft.add(p1);
-  const p2 = new THREE.Mesh(propGeo, propMat); p2.rotation.x=Math.PI/2; p2.position.y=0.08; tRight.add(p2);
+    const prop = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.9, 0.2), MAT.metal(color));
+    prop.position.set(0.6, 0.5, side * 1.5);
+    thrusterGrp.add(prop);
+  }
+  body.add(thrusterGrp);
 
-  // 4. SENSORS / LIGHTS (Front Nose)
+  // === VERTICAL THRUSTER ===
+  const vThruster = new THREE.Group();
+  vThruster.position.set(0, 1.2, 0);
+  const vtBody = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.8, 16), MAT.metal(0x333333));
+  vThruster.add(vtBody);
+  const vtProp = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.1, 0.2), MAT.metal(color));
+  vtProp.position.y = 0.2;
+  vThruster.add(vtProp);
+  body.add(vThruster);
+
+  // === BRUSH HEAD (Front) ===
+  const brushGrp = new THREE.Group();
+  brushGrp.position.set(-3.5, -0.8, 0); // Front
+
+  const bRoll = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 3.0, 16), MAT.hull(0x00aa44));
+  bRoll.rotation.x = Math.PI/2;
+  brushGrp.add(bRoll);
+
+  for(let i=0; i<8; i++) {
+      const br = new THREE.Mesh(new THREE.BoxGeometry(0.1, 3.2, 0.8), MAT.glass(0x00ff88));
+      br.rotation.x = Math.PI/2;
+      br.rotation.z = i * (Math.PI/4);
+      brushGrp.add(br);
+  }
+  body.add(brushGrp);
+
+  // === LIGHT ===
   const light = new THREE.PointLight(color, 0.8, 6);
-  light.position.set(0, 0.1, 0.45); // Move to nose
-  g.add(light);
+  light.position.set(-3, 0.5, 0); // Nose
+  body.add(light);
 
+  // Apply Transform
+  // Design file: Nose at -X, Rear at +X.
+  // Simulation: Forward is +Z.
+  // Rotate Y +90deg (PI/2) to map -X (Nose) to +Z.
+  body.rotation.y = Math.PI/2;
+  body.scale.set(scale, scale, scale);
+
+  g.add(body);
   return g;
 }
 
@@ -848,7 +910,7 @@ function loop(ts){
   waterMesh.position.y=WATER_Y+.05+Math.sin(ts*.0012)*.06;
   poolGlow.intensity=1.1+Math.sin(ts*.0018)*.25;
   dockLight.intensity=2+Math.sin(ts*.003)*0.8;
-  light.material.emissiveIntensity=.7+Math.sin(ts*.004)*.3;
+  // light.material.emissiveIntensity=.7+Math.sin(ts*.004)*.3;
 
   if(frameN%18===0){updateTelemetry();updateRList();}
 
