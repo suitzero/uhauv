@@ -44,8 +44,3 @@ The system prioritizes COTS (Commercial Off-The-Shelf) parts for attritability a
 ## 🎮 Interactive Simulation & 3D Design
 
 This repository includes a fully functional 3D simulation of the flocking algorithm and the interactive robot CAD design.
-
-### How to Run:
-1. Clone the repository:
-   ```bash
-   git clone [https://github.com/yourusername/AquaSwarm.git](https://github.com/yourusername/AquaSwarm.git)
