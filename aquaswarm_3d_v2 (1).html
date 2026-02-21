@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaSwarm 3D — Full Simulation</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;700;900&display=swap');
+:root{--navy:#040e1a;--cyan:#00d4ff;--red:#c41e3a;--green:#00ff88;--amber:#ffaa00;--mono:'Share Tech Mono',monospace;--head:'Barlow Condensed',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--navy);color:#cce8f0;font-family:var(--mono);overflow:hidden;height:100vh;}
+#three{position:fixed;inset:0;z-index:0;}
+
+header{
+  position:fixed;top:0;left:0;right:0;z-index:10;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;background:rgba(4,14,26,0.92);
+  border-bottom:1px solid rgba(0,212,255,0.18);backdrop-filter:blur(12px);
+}
+.logo{font-family:var(--head);font-weight:900;font-size:20px;letter-spacing:4px;color:var(--cyan);text-transform:uppercase;}
+.logo span{color:var(--red);}
+.logo sub{font-size:9px;font-family:var(--mono);color:rgba(0,212,255,0.4);letter-spacing:2px;display:block;}
+.hpills{display:flex;gap:8px;}
+.pill{font-size:9px;letter-spacing:1.5px;padding:3px 9px;border:1px solid;border-radius:1px;}
+.pc{border-color:rgba(0,212,255,0.3);color:var(--cyan);}
+.pr{border-color:rgba(196,30,58,0.4);color:var(--red);animation:blink 2s infinite;}
+.pg{border-color:rgba(0,255,136,0.3);color:var(--green);}
+.pa{border-color:rgba(255,170,0,0.3);color:var(--amber);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+
+#leftPanel{
+  position:fixed;left:0;top:57px;bottom:0;width:250px;z-index:10;
+  background:rgba(4,14,26,0.9);border-right:1px solid rgba(0,212,255,0.1);
+  backdrop-filter:blur(10px);display:flex;flex-direction:column;overflow-y:auto;
+}
+.psec{padding:13px 15px;border-bottom:1px solid rgba(0,212,255,0.07);}
+.ptitle{font-size:8px;letter-spacing:3px;color:var(--cyan);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.ptitle::before{content:'';display:block;width:3px;height:11px;background:var(--red);flex-shrink:0;}
+
+.btn{font-family:var(--head);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 12px;border:1px solid;cursor:pointer;transition:all .15s;background:transparent;width:100%;text-align:left;margin-bottom:5px;}
+.bc{border-color:var(--cyan);color:var(--cyan);}  .bc:hover,.bc.on{background:var(--cyan);color:#04101a;}
+.br{border-color:var(--red);color:var(--red);}    .br:hover{background:var(--red);color:#fff;}
+.ba{border-color:var(--amber);color:var(--amber);}.ba:hover{background:var(--amber);color:#04101a;}
+.bg{border-color:var(--green);color:var(--green);}.bg:hover{background:var(--green);color:#04101a;}
+
+.slg{margin-bottom:10px;}
+.sll{display:flex;justify-content:space-between;font-size:9px;color:rgba(0,212,255,.55);margin-bottom:4px;}
+input[type=range]{-webkit-appearance:none;width:100%;height:2px;background:rgba(0,212,255,.18);outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 5px var(--cyan);}
+
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.tbox{padding:7px;border:1px solid rgba(0,212,255,.1);background:rgba(0,212,255,.03);}
+.tv{font-size:18px;color:var(--cyan);line-height:1;}
+.tv.g{color:var(--green);}.tv.a{color:var(--amber);}.tv.r{color:var(--red);}
+.tk{font-size:7px;color:rgba(0,212,255,.4);letter-spacing:1px;margin-top:2px;}
+
+.rlist{display:flex;flex-direction:column;gap:4px;}
+.rc{display:grid;grid-template-columns:20px 1fr auto;align-items:center;gap:7px;padding:5px 7px;border:1px solid rgba(0,212,255,.1);background:rgba(0,212,255,.02);}
+.rc.act{border-color:rgba(0,212,255,.3);}
+.rc.ret{border-color:rgba(255,170,0,.35);}
+.rc.chg{border-color:rgba(0,255,136,.35);background:rgba(0,255,136,.04);}
+.rc.dis{opacity:.35;}
+.rid{font-size:10px;color:var(--cyan);text-align:center;}
+.rst{font-size:8px;color:rgba(255,255,255,.4);}
+.bbar{height:2px;background:rgba(255,255,255,.08);margin-top:3px;}
+.bfill{height:100%;transition:width .5s,background .5s;}
+.rpct{font-size:9px;}
+
+.log{font-size:8px;line-height:1.9;max-height:140px;overflow-y:auto;}
+.le{display:flex;gap:5px;}
+.lt{color:rgba(0,212,255,.3);flex-shrink:0;}
+.lm.w{color:var(--amber);}.lm.ok{color:var(--green);}.lm.al{color:var(--red);}
+
+.dbadge{margin:14px;padding:10px;border:1px solid rgba(196,30,58,.3);background:rgba(196,30,58,.04);text-align:center;}
+.dbt{font-family:var(--head);font-size:8px;letter-spacing:3px;color:var(--red);margin-bottom:4px;}
+.dbb{font-size:7px;color:rgba(255,255,255,.3);line-height:1.7;}
+
+/* RIGHT HUD */
+#rhud{position:fixed;right:0;top:57px;width:175px;z-index:10;pointer-events:none;}
+.hbox{margin:8px;padding:9px;background:rgba(4,14,26,.85);border:1px solid rgba(0,212,255,.12);backdrop-filter:blur(8px);}
+.htitle{font-size:7px;letter-spacing:2px;color:rgba(0,212,255,.45);margin-bottom:5px;}
+.cbar{height:3px;background:rgba(0,212,255,.1);margin-top:4px;}
+.cfill{height:100%;background:linear-gradient(90deg,#00a8cc,#00d4ff);box-shadow:0 0 4px #00d4ff;transition:width .8s;}
+
+/* DEBRIS COUNTER badge */
+#debrisBadge{
+  position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:15;
+  display:flex;gap:12px;
+  background:rgba(4,14,26,.88);border:1px solid rgba(0,212,255,.15);
+  padding:6px 18px;backdrop-filter:blur(8px);
+  font-size:10px;letter-spacing:1.5px;pointer-events:none;
+}
+.dbitem{display:flex;align-items:center;gap:6px;}
+.dbi-dot{width:7px;height:7px;border-radius:50%;}
+
+.hint{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:5;font-size:8px;color:rgba(0,212,255,.25);letter-spacing:1.5px;pointer-events:none;}
+::-webkit-scrollbar{width:3px;} ::-webkit-scrollbar-thumb{background:rgba(0,212,255,.2);}
+
+/* DOCK label */
+.dock-label{
+  position:fixed;right:185px;top:85px;z-index:12;
+  font-size:8px;letter-spacing:2px;color:var(--amber);
+  border:1px solid rgba(255,170,0,.3);padding:3px 8px;
+  background:rgba(4,14,26,.8);pointer-events:none;
+  animation:blink 2.5s infinite;
+}
+</style>
+</head>
+<body>
+<div id="three"></div>
+
+<header>
+  <div>
+    <div class="logo">Aqua<span>Swarm</span> <sub>3D SIMULATION — DEBRIS + SURFACE DOCK</sub></div>
+  </div>
+  <div class="hpills">
+    <div class="pill pg">● SONAR ACTIVE</div>
+    <div class="pill pr">✕ RF DENIED</div>
+    <div class="pill pc">IMU DEAD RECKONING</div>
+    <div class="pill pa">⚡ SURFACE DOCK</div>
+  </div>
+</header>
+
+<div id="debrisBadge">
+  <div class="dbitem"><div class="dbi-dot" style="background:#8B4513"></div><span id="debTotal">0</span> DEBRIS TOTAL</div>
+  <div class="dbitem"><div class="dbi-dot" style="background:#00ff88"></div><span id="debCleaned">0</span> COLLECTED</div>
+  <div class="dbitem"><div class="dbi-dot" style="background:#ffaa00"></div><span id="debPct">0%</span> CLEAN</div>
+</div>
+
+<div id="leftPanel">
+  <div class="psec">
+    <div class="ptitle">Mission Control</div>
+    <button class="btn bc" id="btnL" onclick="toggleSim()">▶ LAUNCH SWARM</button>
+    <button class="btn ba" onclick="spawnDebris(20)">+ SPAWN DEBRIS ×20</button>
+    <button class="btn br" onclick="recallAll()">⬤ EMERGENCY RECALL</button>
+    <button class="btn bg" onclick="resetDebris()">↺ RESET POOL</button>
+  </div>
+
+  <div class="psec">
+    <div class="ptitle">Camera</div>
+    <button class="btn bc" onclick="setCam('iso')" style="font-size:10px;margin-bottom:3px">ISOMETRIC</button>
+    <button class="btn bc" onclick="setCam('top')" style="font-size:10px;margin-bottom:3px">TOP DOWN</button>
+    <button class="btn bc" onclick="setCam('side')" style="font-size:10px">SIDE VIEW</button>
+  </div>
+
+  <div class="psec">
+    <div class="ptitle">Parameters</div>
+    <div class="slg"><div class="sll"><span>SWARM SIZE</span><span id="ssv">5</span></div><input type="range" min="2" max="10" value="5" id="ss" oninput="onP()"></div>
+    <div class="slg"><div class="sll"><span>SPEED</span><span id="spv">1.0x</span></div><input type="range" min="3" max="20" value="10" id="sp" oninput="onP()"></div>
+    <div class="slg"><div class="sll"><span>BATTERY DRAIN</span><span id="bdv">1.0x</span></div><input type="range" min="1" max="10" value="3" id="bd" oninput="onP()"></div>
+    <div class="slg"><div class="sll"><span>SONAR RANGE</span><span id="srv">50</span></div><input type="range" min="20" max="100" value="50" id="sr" oninput="onP()"></div>
+  </div>
+
+  <div class="psec">
+    <div class="ptitle">Fleet Telemetry</div>
+    <div class="tgrid">
+      <div class="tbox"><div class="tv g" id="tClean">0%</div><div class="tk">DEBRIS CLEAN</div></div>
+      <div class="tbox"><div class="tv" id="tAct">0</div><div class="tk">ACTIVE</div></div>
+      <div class="tbox"><div class="tv a" id="tBat">--</div><div class="tk">AVG BAT</div></div>
+      <div class="tbox"><div class="tv a" id="tChg">0</div><div class="tk">CHARGING</div></div>
+    </div>
+  </div>
+
+  <div class="psec">
+    <div class="ptitle">Unit Status</div>
+    <div class="rlist" id="rlist"></div>
+  </div>
+
+  <div class="psec" style="flex:1">
+    <div class="ptitle">System Log</div>
+    <div class="log" id="slog"></div>
+  </div>
+
+  <div class="dbadge">
+    <div class="dbt">⬡ DUAL-USE TECH</div>
+    <div class="dbb">COMM-INDEPENDENT · EMCON<br>INDOPACOM SBIR / DIU</div>
+  </div>
+</div>
+
+<div id="rhud">
+  <div class="hbox">
+    <div class="htitle">DEBRIS CLEANED</div>
+    <div class="tv g" id="hudClean" style="font-size:26px">0%</div>
+    <div class="cbar"><div class="cfill" id="cfill" style="width:0%"></div></div>
+  </div>
+  <div class="hbox" style="margin-top:0">
+    <div class="htitle">MISSION TIME</div>
+    <div class="tv" id="hudTime" style="font-size:16px">00:00</div>
+  </div>
+  <div class="hbox" style="margin-top:0">
+    <div class="htitle">DOCK STATUS</div>
+    <div id="dockStatus" style="font-size:10px;color:var(--green)">READY</div>
+  </div>
+</div>
+
+<div class="dock-label" id="dockLbl">⚡ SURFACE CHARGING DOCK</div>
+<div class="hint">DRAG TO ROTATE · SCROLL TO ZOOM</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════
+// THREE.JS SETUP
+// ══════════════════════════════════════════════════════════
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x04080f);
+scene.fog = new THREE.FogExp2(0x04080f, 0.016);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+document.getElementById('three').appendChild(renderer.domElement);
+
+const camera = new THREE.PerspectiveCamera(52, window.innerWidth/window.innerHeight, 0.1, 600);
+camera.position.set(0, 65, 85);
+camera.lookAt(0,0,0);
+
+scene.add(new THREE.AmbientLight(0x0a1a30, 2));
+const sun = new THREE.DirectionalLight(0x88ccff, 0.8);
+sun.position.set(20,50,20); scene.add(sun);
+const poolGlow = new THREE.PointLight(0x0044aa, 1.2, 90);
+poolGlow.position.set(0,-8,0); scene.add(poolGlow);
+
+// ── ORBIT ──────────────────────────────────────────────────
+let sph={theta:0.5,phi:0.85,r:110}, tSph={...sph};
+let drag=false, rightDrag=false, pm={x:0,y:0};
+const pan=new THREE.Vector3();
+
+renderer.domElement.addEventListener('mousedown',e=>{drag=true;rightDrag=e.button===2;pm={x:e.clientX,y:e.clientY};});
+renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
+renderer.domElement.addEventListener('mousemove',e=>{
+  if(!drag)return;
+  const dx=e.clientX-pm.x,dy=e.clientY-pm.y;
+  if(rightDrag){const r=new THREE.Vector3();camera.getWorldDirection(r);r.cross(camera.up).normalize();pan.addScaledVector(r,-dx*.08);pan.addScaledVector(camera.up,dy*.08);}
+  else{tSph.theta-=dx*.008;tSph.phi=Math.max(.05,Math.min(Math.PI*.46,tSph.phi+dy*.008));}
+  pm={x:e.clientX,y:e.clientY};
+});
+window.addEventListener('mouseup',()=>drag=false);
+renderer.domElement.addEventListener('wheel',e=>{tSph.r=Math.max(20,Math.min(220,tSph.r+e.deltaY*.1));});
+window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);});
+
+function camTick(){
+  sph.theta+=(tSph.theta-sph.theta)*.08;
+  sph.phi+=(tSph.phi-sph.phi)*.08;
+  sph.r+=(tSph.r-sph.r)*.08;
+  const x=sph.r*Math.sin(sph.phi)*Math.sin(sph.theta)+pan.x;
+  const y=sph.r*Math.cos(sph.phi)+pan.y;
+  const z=sph.r*Math.sin(sph.phi)*Math.cos(sph.theta)+pan.z;
+  camera.position.set(x,y,z);
+  camera.lookAt(pan.x,pan.y,pan.z);
+}
+function setCam(m){
+  if(m==='top'){tSph.phi=.04;tSph.r=110;}
+  else if(m==='iso'){tSph.theta=.6;tSph.phi=.85;tSph.r=110;}
+  else if(m==='side'){tSph.phi=Math.PI/2-.04;tSph.r=110;}
+}
+
+// ══════════════════════════════════════════════════════════
+// POOL WORLD
+// ══════════════════════════════════════════════════════════
+const PW=70, PD=42, PH=9; // width, depth(z), height(y)
+const WATER_Y=0;
+const FLOOR_Y=-PH;
+
+// FLOOR
+const floorG=new THREE.PlaneGeometry(PW,PD,28,16);
+const floorM=new THREE.MeshPhongMaterial({color:0x08203a,emissive:0x001828,emissiveIntensity:.6});
+const floor=new THREE.Mesh(floorG,floorM);
+floor.rotation.x=-Math.PI/2; floor.position.y=FLOOR_Y;
+scene.add(floor);
+
+// GRID on floor
+const grid=new THREE.GridHelper(PW,28,0x00d4ff,0x00d4ff);
+grid.material.opacity=.06; grid.material.transparent=true;
+grid.position.y=FLOOR_Y+.05; scene.add(grid);
+
+// POOL WALLS (transparent)
+function wall(w,h,d,x,y,z){
+  const g=new THREE.BoxGeometry(w,h,d);
+  const m=new THREE.Mesh(g,new THREE.MeshPhongMaterial({color:0x0c2540,transparent:true,opacity:.22,side:THREE.DoubleSide}));
+  m.position.set(x,y,z); scene.add(m);
+  const e=new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:0x00d4ff,transparent:true,opacity:.2}));
+  e.position.set(x,y,z); scene.add(e);
+}
+const wy=FLOOR_Y/2;
+wall(PW,PH,.4,0,wy,PD/2); wall(PW,PH,.4,0,wy,-PD/2);
+wall(.4,PH,PD,-PW/2,wy,0); wall(.4,PH,PD,PW/2,wy,0);
+
+// WATER SURFACE
+const waterG=new THREE.PlaneGeometry(PW,PD);
+const waterM=new THREE.MeshPhongMaterial({color:0x003366,transparent:true,opacity:.32,side:THREE.DoubleSide,shininess:100});
+const waterMesh=new THREE.Mesh(waterG,waterM);
+waterMesh.rotation.x=-Math.PI/2; waterMesh.position.y=WATER_Y+.05;
+scene.add(waterMesh);
+
+// LANE DIVIDERS
+for(let i=1;i<4;i++){
+  const rope=new THREE.Mesh(new THREE.BoxGeometry(.1,.1,PD),new THREE.MeshBasicMaterial({color:0x0044aa}));
+  rope.position.set(-PW/2+i*(PW/4),-1,0); scene.add(rope);
+}
+
+// ══════════════════════════════════════════════════════════
+// SURFACE DOCK (충전 스테이션 — 물 위)
+// ══════════════════════════════════════════════════════════
+const DOCK_POS=new THREE.Vector3(-PW/2+4, WATER_Y+1.0, -PD/2+4);
+
+const dockGroup=new THREE.Group();
+// Platform
+const platG=new THREE.BoxGeometry(6,0.4,6);
+const platM=new THREE.Mesh(platG,new THREE.MeshPhongMaterial({color:0x1a1a00,emissive:0x555500,emissiveIntensity:.3,shininess:80}));
+dockGroup.add(platM);
+// Edge trim
+const eTrim=new THREE.LineSegments(new THREE.EdgesGeometry(platG),new THREE.LineBasicMaterial({color:0xffaa00,transparent:true,opacity:.8}));
+dockGroup.add(eTrim);
+// Charging pads (pogo contacts)
+for(let px of[-1.2,0,1.2]){
+  const pad=new THREE.Mesh(new THREE.CylinderGeometry(.3,.3,.12,16),new THREE.MeshPhongMaterial({color:0xffdd00,emissive:0xaa8800,emissiveIntensity:.5}));
+  pad.position.set(px,.28,0); dockGroup.add(pad);
+}
+// Pole + indicator light
+const pole=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,4,8),new THREE.MeshPhongMaterial({color:0x333300}));
+pole.position.set(2.5,2,2.5); dockGroup.add(pole);
+const light=new THREE.Mesh(new THREE.SphereGeometry(.25,10,8),new THREE.MeshPhongMaterial({color:0xffaa00,emissive:0xffaa00,emissiveIntensity:1}));
+light.position.set(2.5,4.2,2.5); dockGroup.add(light);
+const dockLight=new THREE.PointLight(0xffaa00,2.5,18);
+dockLight.position.set(2.5,4,2.5); dockGroup.add(dockLight);
+
+dockGroup.position.copy(DOCK_POS);
+scene.add(dockGroup);
+
+// Ramp (로봇이 물 밖으로 올라오는 경사로)
+const rampG=new THREE.BoxGeometry(3,.15,3);
+const ramp=new THREE.Mesh(rampG,new THREE.MeshPhongMaterial({color:0x0a1a0a,transparent:true,opacity:.7}));
+ramp.rotation.z=Math.PI*0.04;
+ramp.position.set(-PW/2+4, WATER_Y-.5, -PD/2+4);
+scene.add(ramp);
+
+// ══════════════════════════════════════════════════════════
+// DEBRIS SYSTEM — 쓰레기!
+// ══════════════════════════════════════════════════════════
+const debrisPool=[];
+let totalDebris=0, cleanedDebris=0;
+
+const DEBRIS_TYPES=[
+  // [name, geo, color, size]
+  ['leaf',   ()=>new THREE.PlaneGeometry(.6,.4),          0x4a7c20, 1],
+  ['sand',   ()=>new THREE.SphereGeometry(.25,6,4),       0xc8a55a, 1],
+  ['algae',  ()=>new THREE.TorusGeometry(.3,.1,5,8),      0x2a6a20, 1],
+  ['dirt',   ()=>new THREE.SphereGeometry(.18,5,4),       0x5c3a1a, 1],
+  ['hair',   ()=>new THREE.CylinderGeometry(.02,.02,.8,4),0x222222, 1],
+  ['chip',   ()=>new THREE.BoxGeometry(.3,.05,.3),        0xddccaa, 1],
+  ['algae2', ()=>new THREE.BoxGeometry(.5,.05,.4),        0x1a5a10, 1],
+];
+
+function spawnDebris(n=20){
+  for(let i=0;i<n;i++){
+    const t=DEBRIS_TYPES[Math.floor(Math.random()*DEBRIS_TYPES.length)];
+    const geo=t[1]();
+    const mat=new THREE.MeshPhongMaterial({color:t[2],transparent:true,opacity:.85+Math.random()*.15});
+    const mesh=new THREE.Mesh(geo,mat);
+    // Random position on pool floor + random depth scatter
+    const depth=Math.random(); // 0=floor, 1=mid water
+    mesh.position.set(
+      (Math.random()-.5)*(PW-4),
+      FLOOR_Y+.15 + depth*(PH-1)*Math.random()*.3,
+      (Math.random()-.5)*(PD-4)
+    );
+    mesh.rotation.set(Math.random()*Math.PI,Math.random()*Math.PI,Math.random()*Math.PI);
+    mesh.userData={type:t[0],collected:false,drifting:Math.random()>.7};
+    scene.add(mesh);
+    debrisPool.push(mesh);
+    totalDebris++;
+  }
+  updateDebrisBadge();
+  log(`${n} debris particles spawned in pool`,'w');
+}
+
+function resetDebris(){
+  debrisPool.forEach(m=>scene.remove(m));
+  debrisPool.length=0;
+  totalDebris=0; cleanedDebris=0;
+  updateDebrisBadge();
+  log('Pool reset — debris cleared','ok');
+}
+
+function updateDebrisBadge(){
+  document.getElementById('debTotal').textContent=totalDebris;
+  document.getElementById('debCleaned').textContent=cleanedDebris;
+  const pct=totalDebris>0?Math.round(cleanedDebris/totalDebris*100):0;
+  document.getElementById('debPct').textContent=pct+'%';
+  document.getElementById('hudClean').textContent=pct+'%';
+  document.getElementById('cfill').style.width=pct+'%';
+  document.getElementById('tClean').textContent=pct+'%';
+  document.getElementById('tClean').className='tv '+(pct>75?'g':pct>40?'a':'r');
+}
+
+// ══════════════════════════════════════════════════════════
+// ROBOTS
+// ══════════════════════════════════════════════════════════
+const RCOLORS=[0x00d4ff,0x00aaff,0x0088dd,0x44ccff,0x22eeff,0x00bbee,0x66ddff,0x88eeff,0x33bbdd,0x55ccee];
+let robots=[], running=false, animId=null, startTs=null, elapsed=0, frameN=0;
+
+// Sonar rings pool
+const sonarRings=[];
+function mkSonarRing(pos,col){
+  const g=new THREE.RingGeometry(0,1,28);
+  const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.55,side:THREE.DoubleSide}));
+  m.rotation.x=-Math.PI/2; m.position.copy(pos); scene.add(m);
+  sonarRings.push({mesh:m,age:0,maxAge:55,maxR:parseFloat(document.getElementById('sr').value)});
+}
+function tickSonar(){
+  for(let i=sonarRings.length-1;i>=0;i--){
+    const r=sonarRings[i]; r.age++;
+    const t=r.age/r.maxAge;
+    r.mesh.scale.setScalar(r.maxR*t);
+    r.mesh.material.opacity=.5*(1-t);
+    if(r.age>=r.maxAge){scene.remove(r.mesh);sonarRings.splice(i,1);}
+  }
+}
+
+// Sector assignment
+function getSector(i,n){
+  const step=PW/n;
+  return{x0:-PW/2+i*step, x1:-PW/2+(i+1)*step};
+}
+function randInSector(sec){
+  return new THREE.Vector3(
+    sec.x0+Math.random()*(sec.x1-sec.x0),
+    FLOOR_Y+.6+Math.random()*.5,
+    (Math.random()-.5)*(PD-4)
+  );
+}
+
+function mkRoboMesh(color){
+  const g=new THREE.Group();
+  // Torpedo body
+  const pts=[];
+  for(let i=0;i<=16;i++){const t=i/16;const r=t<.12?t/.12*.45:t>.82?(1-t)/.18*.45:.45;pts.push(new THREE.Vector2(r,(t-.5)*2.8));}
+  const latGeo=new THREE.LatheGeometry(pts,20);
+  const body=new THREE.Mesh(latGeo,new THREE.MeshPhongMaterial({color,emissive:color,emissiveIntensity:.18,shininess:70}));
+  body.rotation.x=Math.PI/2; g.add(body);
+  // Fins
+  for(let a of[0,Math.PI/2,Math.PI,-Math.PI/2]){
+    const f=new THREE.Mesh(new THREE.BoxGeometry(.06,.45,.3),new THREE.MeshPhongMaterial({color,transparent:true,opacity:.7}));
+    f.position.set(Math.sin(a)*.38,Math.cos(a)*.38,-1.2); f.rotation.z=a; g.add(f);
+  }
+  // Brush disc (bottom)
+  const brush=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.12,16),new THREE.MeshPhongMaterial({color:0x00ff88,emissive:0x004400,emissiveIntensity:.4}));
+  brush.position.set(0,-.45,.3); g.add(brush);
+  // Point glow
+  const pl=new THREE.PointLight(color,.9,5); g.add(pl);
+  // Suction tube (bottom)
+  const tube=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,.5,8),new THREE.MeshPhongMaterial({color:0x004400}));
+  tube.position.set(0,-.7,.3); g.add(tube);
+  return g;
+}
+
+function initRobots(){
+  robots.forEach(r=>{scene.remove(r.mesh);r.trails.forEach(l=>scene.remove(l));});
+  robots=[];
+  const n=parseInt(document.getElementById('ss').value);
+  for(let i=0;i<n;i++){
+    const col=RCOLORS[i%RCOLORS.length];
+    const mesh=mkRoboMesh(col);
+    const sec=getSector(i,n);
+    mesh.position.set(DOCK_POS.x,DOCK_POS.y+.5,DOCK_POS.z);
+    scene.add(mesh);
+    robots.push({
+      id:i, mesh, col,
+      pos:mesh.position.clone(),
+      vel:new THREE.Vector3((Math.random()-.5)*.3,0,(Math.random()-.5)*.3),
+      battery:90+Math.random()*10,
+      state:'cleaning', // cleaning | seeking_debris | returning | surfacing | charging
+      sector:sec,
+      target:randInSector(sec),
+      debrisTarget:null,
+      trails:[],trailPts:[],
+      sonarT:Math.floor(Math.random()*70),
+      disabled:false,
+      chargeTimer:0,
+    });
+  }
+  updateRList();
+}
+
+// ══════════════════════════════════════════════════════════
+// NEAREST DEBRIS FINDER
+// ══════════════════════════════════════════════════════════
+function findNearestDebris(pos, sonarR){
+  let best=null, bestD=sonarR;
+  for(let d of debrisPool){
+    if(d.userData.collected) continue;
+    // Check if another robot is already targeting this
+    const claimed=robots.some(r=>r.debrisTarget===d);
+    if(claimed) continue;
+    const dist=pos.distanceTo(d.position);
+    if(dist<bestD){bestD=dist;best=d;}
+  }
+  return best;
+}
+
+// ══════════════════════════════════════════════════════════
+// ROBOT UPDATE
+// ══════════════════════════════════════════════════════════
+function updateRobots(){
+  const speed=parseInt(document.getElementById('sp').value)/10;
+  const drain=parseInt(document.getElementById('bd').value)/10;
+  const sonarR=parseFloat(document.getElementById('sr').value);
+  let chargingCount=0;
+
+  robots.forEach(r=>{
+    if(r.disabled)return;
+    if(r.battery<=0){r.disabled=true;r.state='disabled';log(`UNIT-${r.id} dead — offline`,'al');return;}
+
+    r.sonarT--;
+    if(r.sonarT<=0){mkSonarRing(r.pos.clone(),r.col);r.sonarT=55+Math.floor(Math.random()*35);}
+
+    // ── STATE MACHINE ──────────────────────────────────────
+    if(r.state==='charging'){
+      chargingCount++;
+      r.battery=Math.min(100,r.battery+1.8);
+      r.chargeTimer++;
+      // Dock light pulse to this robot
+      if(r.battery>=95){
+        r.state='cleaning';
+        r.target=randInSector(r.sector);
+        r.debrisTarget=null;
+        log(`UNIT-${r.id} ⚡ fully charged — diving back in`,'ok');
+      }
+      // Stay on dock
+      const toDoc=DOCK_POS.clone().add(new THREE.Vector3((r.id%3-.5)*.8,.5,0)).sub(r.pos);
+      r.vel.lerp(toDoc.normalize().multiplyScalar(.3),.2);
+      r.battery-=.001; // minimal drain on dock
+      return;
+    }
+
+    if(r.state==='surfacing'){
+      // Rise to surface then go to dock
+      const surfTarget=new THREE.Vector3(DOCK_POS.x+(r.id%3-.5)*.8, DOCK_POS.y+.4, DOCK_POS.z);
+      const toDock=surfTarget.clone().sub(r.pos);
+      const dist=toDock.length();
+      if(dist<1.5){
+        r.state='charging';
+        log(`UNIT-${r.id} ⚡ docked — charging`,'ok');
+      } else {
+        // Rise first if underwater
+        if(r.pos.y < WATER_Y-.5){
+          r.vel.y+=.4;
+        } else {
+          r.vel.lerp(toDock.normalize().multiplyScalar(speed*1.5),.15);
+        }
+        r.battery-=.008*drain;
+      }
+      r.pos.add(r.vel.clone().multiplyScalar(.35));
+      r.mesh.position.copy(r.pos);
+      if(r.vel.length()>.05){r.mesh.rotation.y=Math.atan2(r.vel.x,r.vel.z);r.mesh.rotation.z=-Math.atan2(r.vel.y,Math.sqrt(r.vel.x**2+r.vel.z**2));}
+      return;
+    }
+
+    if(r.state==='returning'){
+      // Head toward dock (surface)
+      const surfPt=new THREE.Vector3(DOCK_POS.x, WATER_Y+.3, DOCK_POS.z);
+      if(r.pos.y<WATER_Y-1){
+        // Rise first
+        r.vel.y+=.5;
+        const h=new THREE.Vector3(surfPt.x-r.pos.x,0,surfPt.z-r.pos.z).normalize().multiplyScalar(speed*.5);
+        r.vel.x+=h.x; r.vel.z+=h.z;
+      } else {
+        const toSurf=surfPt.clone().sub(r.pos);
+        if(toSurf.length()<2){r.state='surfacing';}
+        else r.vel.lerp(toSurf.normalize().multiplyScalar(speed*1.3),.12);
+      }
+      r.battery-=.01*drain;
+    } else {
+      // UNDERWATER: CLEANING / SEEKING DEBRIS
+      // Sonar sweep for debris
+      if(debrisPool.length>0 && r.state!=='returning'){
+        if(!r.debrisTarget || r.debrisTarget.userData.collected){
+          const nd=findNearestDebris(r.pos, sonarR);
+          if(nd){r.debrisTarget=nd; r.state='seeking_debris';}
+          else{r.state='cleaning'; r.debrisTarget=null;}
+        }
+      }
+
+      if(r.state==='seeking_debris' && r.debrisTarget && !r.debrisTarget.userData.collected){
+        const toD=r.debrisTarget.position.clone().sub(r.pos);
+        const dist=toD.length();
+        if(dist<1.8){
+          // COLLECT!
+          r.debrisTarget.userData.collected=true;
+          r.debrisTarget.visible=false;
+          cleanedDebris++;
+          updateDebrisBadge();
+          log(`UNIT-${r.id} collected ${r.debrisTarget.userData.type}`,'ok');
+          r.debrisTarget=null;
+          r.state='cleaning';
+          r.target=randInSector(r.sector);
+        } else {
+          r.vel.lerp(toD.normalize().multiplyScalar(speed*1.1),.15);
+        }
+      } else {
+        // Standard flocking patrol
+        r.state='cleaning';
+        let force=new THREE.Vector3();
+        let sep=new THREE.Vector3(),sc=0;
+        let ali=new THREE.Vector3(),ac=0;
+        let coh=new THREE.Vector3(),cc=0;
+        robots.forEach(o=>{
+          if(o.id===r.id||o.disabled)return;
+          const d=r.pos.distanceTo(o.pos);
+          if(d<sonarR*.5){
+            if(d<5){sep.add(r.pos.clone().sub(o.pos).normalize());sc++;}
+            ali.add(o.vel);ac++;
+            coh.add(o.pos);cc++;
+          }
+        });
+        if(sc)force.add(sep.divideScalar(sc).multiplyScalar(1.5));
+        if(ac)force.add(ali.divideScalar(ac).sub(r.vel).multiplyScalar(.2));
+        if(cc)force.add(coh.divideScalar(cc).sub(r.pos).multiplyScalar(.005));
+        // Seek patrol target
+        if(r.target){
+          const td=r.target.clone().sub(r.pos);
+          if(td.length()<2){r.target=randInSector(r.sector);}
+          else force.add(td.normalize().multiplyScalar(speed*.8));
+        }
+        r.vel.add(force);
+      }
+
+      // Floor hugging (cleaning mode stays near bottom)
+      if(r.pos.y > FLOOR_Y+2){r.vel.y-=.1;}
+      if(r.pos.y < FLOOR_Y+.5){r.vel.y+=.3;}
+
+      // Boundary
+      const pad=3;
+      if(r.pos.x<-PW/2+pad)r.vel.x+=.4; if(r.pos.x>PW/2-pad)r.vel.x-=.4;
+      if(r.pos.z<-PD/2+pad)r.vel.z+=.4; if(r.pos.z>PD/2-pad)r.vel.z-=.4;
+      if(r.pos.y>WATER_Y-.3)r.vel.y-=.5;
+
+      r.battery-=(.006+Math.random()*.003)*drain;
+
+      // LOW BATTERY → surface to dock
+      if(r.battery<18 && r.state!=='returning'){
+        r.state='returning';
+        r.debrisTarget=null;
+        log(`UNIT-${r.id} 🔋 low battery → surfacing to dock`,'w');
+      }
+    }
+
+    // Speed limit
+    if(r.vel.length()>speed*2.5)r.vel.normalize().multiplyScalar(speed*2.5);
+    r.pos.add(r.vel.clone().multiplyScalar(.38));
+    r.mesh.position.copy(r.pos);
+    if(r.vel.length()>.05){
+      r.mesh.rotation.y=Math.atan2(r.vel.x,r.vel.z);
+      r.mesh.rotation.z=-Math.atan2(r.vel.y,Math.sqrt(r.vel.x**2+r.vel.z**2));
+    }
+
+    // Trail
+    r.trailPts.push(r.pos.clone());
+    if(r.trailPts.length>35)r.trailPts.shift();
+    if(r.trailPts.length>2&&frameN%4===0){
+      r.trails.forEach(l=>scene.remove(l));r.trails=[];
+      for(let i=1;i<r.trailPts.length;i++){
+        const g=new THREE.BufferGeometry().setFromPoints([r.trailPts[i-1],r.trailPts[i]]);
+        const l=new THREE.Line(g,new THREE.LineBasicMaterial({color:r.col,transparent:true,opacity:(i/r.trailPts.length)*.22}));
+        scene.add(l);r.trails.push(l);
+      }
+    }
+  });
+
+  document.getElementById('tChg').textContent=chargingCount;
+  const dockSt=chargingCount>0?`${chargingCount} CHARGING`:robots.filter(r=>r.state==='surfacing'||r.state==='returning').length>0?'INCOMING':'READY';
+  document.getElementById('dockStatus').textContent=dockSt;
+  document.getElementById('dockStatus').style.color=chargingCount>0?'var(--green)':robots.some(r=>r.state==='surfacing'||r.state==='returning')?'var(--amber)':'var(--cyan)';
+}
+
+// ══════════════════════════════════════════════════════════
+// UI
+// ══════════════════════════════════════════════════════════
+function recallAll(){
+  robots.forEach(r=>{if(!r.disabled&&r.state!=='charging'&&r.state!=='surfacing'){r.state='returning';r.debrisTarget=null;}});
+  log('EMERGENCY RECALL — all units RTB','al');
+}
+
+function updateTelemetry(){
+  const alive=robots.filter(r=>!r.disabled);
+  const active=alive.filter(r=>r.state==='cleaning'||r.state==='seeking_debris').length;
+  document.getElementById('tAct').textContent=active;
+  const avgBat=alive.length?alive.reduce((s,r)=>s+r.battery,0)/alive.length:0;
+  const be=document.getElementById('tBat');
+  be.textContent=avgBat.toFixed(0)+'%';
+  be.className='tv '+(avgBat>50?'g':avgBat>20?'a':'r');
+  const mm=String(Math.floor(elapsed/60000)).padStart(2,'0');
+  const ss2=String(Math.floor((elapsed%60000)/1000)).padStart(2,'0');
+  document.getElementById('hudTime').textContent=`${mm}:${ss2}`;
+}
+
+function updateRList(){
+  const el=document.getElementById('rlist');
+  const STATE_LABEL={cleaning:'CLEANING',seeking_debris:'→ DEBRIS',returning:'RTB',surfacing:'SURFACING',charging:'⚡ CHG',disabled:'OFFLINE'};
+  el.innerHTML=robots.map(r=>{
+    const pct=Math.max(0,r.battery).toFixed(0);
+    const bc=r.disabled?'#444':r.battery>50?'#00ff88':r.battery>20?'#ffaa00':'#c41e3a';
+    const cls=r.disabled?'dis':r.state==='charging'?'chg':r.state==='returning'||r.state==='surfacing'?'ret':'act';
+    return`<div class="rc ${cls}">
+      <div class="rid">${r.id}</div>
+      <div><div class="rst">${STATE_LABEL[r.state]||r.state.toUpperCase()}</div><div class="bbar"><div class="bfill" style="width:${pct}%;background:${bc}"></div></div></div>
+      <div class="rpct" style="color:${bc}">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+let logLines=[];
+function log(msg,type=''){
+  const mm=String(Math.floor(elapsed/60000)).padStart(2,'0');
+  const ss2=String(Math.floor((elapsed%60000)/1000)).padStart(2,'0');
+  logLines.unshift({t:`${mm}:${ss2}`,msg,type});
+  if(logLines.length>60)logLines.pop();
+  document.getElementById('slog').innerHTML=logLines.slice(0,22).map(l=>`<div class="le"><span class="lt">${l.t}</span><span class="lm ${l.type}">${l.msg}</span></div>`).join('');
+}
+
+function onP(){
+  document.getElementById('ssv').textContent=document.getElementById('ss').value;
+  document.getElementById('spv').textContent=(parseInt(document.getElementById('sp').value)/10).toFixed(1)+'x';
+  document.getElementById('bdv').textContent=(parseInt(document.getElementById('bd').value)/10).toFixed(1)+'x';
+  document.getElementById('srv').textContent=document.getElementById('sr').value;
+}
+
+// ══════════════════════════════════════════════════════════
+// MAIN LOOP
+// ══════════════════════════════════════════════════════════
+function toggleSim(){
+  running=!running;
+  const btn=document.getElementById('btnL');
+  if(running){
+    startTs=null;
+    initRobots();
+    spawnDebris(30);
+    log('MISSION START — swarm deployed','ok');
+    log('RF DENIED — sonar+IMU nav active','w');
+    log('SURFACE DOCK ready at corner','ok');
+    btn.textContent='■ ABORT';btn.classList.add('on');
+    animId=requestAnimationFrame(loop);
+  } else {
+    cancelAnimationFrame(animId);
+    btn.textContent='▶ LAUNCH SWARM';btn.classList.remove('on');
+    log('MISSION ABORTED','al');
+  }
+}
+
+function loop(ts){
+  if(!startTs)startTs=ts;
+  elapsed=ts-startTs;
+  frameN++;
+
+  if(running)updateRobots();
+  tickSonar();
+
+  // Water shimmer
+  waterMesh.position.y=WATER_Y+.05+Math.sin(ts*.0012)*.06;
+  poolGlow.intensity=1.1+Math.sin(ts*.0018)*.25;
+  dockLight.intensity=2+Math.sin(ts*.003)*0.8;
+  light.material.emissiveIntensity=.7+Math.sin(ts*.004)*.3;
+
+  if(frameN%18===0){updateTelemetry();updateRList();}
+
+  camTick();
+  renderer.render(scene,camera);
+  animId=requestAnimationFrame(loop);
+}
+
+// INIT
+log('SYSTEM READY','ok');
+log('NAV: SONAR + IMU DEAD RECKONING','');
+log('RF STATUS: DENIED','w');
+log('SURFACE DOCK: STANDBY','ok');
+animId=requestAnimationFrame(loop);
+</script>
+</body>
+</html>

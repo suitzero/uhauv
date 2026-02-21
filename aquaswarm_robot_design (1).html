@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaSwarm — Robot Design Reference</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap');
+:root {
+  --navy:#05101f; --navy2:#0a1e38; --cyan:#00d4ff; --cyan2:#0088aa;
+  --red:#c41e3a; --green:#00ff88; --amber:#ffaa00; --white:#e8f4f8;
+  --mono:'Share Tech Mono',monospace; --head:'Barlow Condensed',sans-serif; --body:'Barlow',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--navy);color:var(--white);font-family:var(--mono);overflow:hidden;height:100vh;display:flex;flex-direction:column;}
+/* HEADER */
+header{
+  flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:10px 24px;background:rgba(5,16,31,0.95);
+  border-bottom:1px solid rgba(0,212,255,0.2);z-index:20;
+}
+.logo{font-family:var(--head);font-weight:900;font-size:20px;letter-spacing:4px;color:var(--cyan);text-transform:uppercase;}
+.logo span{color:var(--red);} .logo sub{font-size:9px;font-family:var(--mono);color:rgba(0,212,255,0.4);letter-spacing:2px;display:block;}
+.hpills{display:flex;gap:8px;}
+.pill{font-size:9px;letter-spacing:1.5px;padding:3px 9px;border:1px solid;border-radius:1px;}
+.pc{border-color:rgba(0,212,255,0.3);color:var(--cyan);}
+.pr{border-color:rgba(196,30,58,0.4);color:var(--red);}
+.pg{border-color:rgba(0,255,136,0.3);color:var(--green);}
+
+/* TAB BAR */
+.tabbar{
+  flex-shrink:0;display:flex;align-items:center;gap:0;
+  background:rgba(5,16,31,0.9);border-bottom:1px solid rgba(0,212,255,0.12);
+  padding:0 24px;
+}
+.tab{
+  font-family:var(--head);font-size:12px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;padding:9px 18px;cursor:pointer;
+  color:rgba(0,212,255,0.4);border-bottom:2px solid transparent;
+  transition:all .15s;background:transparent;border-top:none;border-left:none;border-right:none;
+}
+.tab:hover{color:var(--cyan);}
+.tab.on{color:var(--cyan);border-bottom-color:var(--red);}
+.tab-sep{color:rgba(0,212,255,0.15);font-size:18px;user-select:none;}
+
+/* MAIN AREA */
+.main{flex:1;display:flex;overflow:hidden;position:relative;}
+
+/* CANVAS PANELS */
+.canvases{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0;position:relative;}
+.cv-wrap{
+  position:relative;overflow:hidden;
+  border-right:1px solid rgba(0,212,255,0.1);
+}
+.cv-wrap:last-child{border-right:none;}
+canvas{display:block;width:100%;height:100%;}
+
+.cv-label{
+  position:absolute;top:12px;left:0;right:0;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  pointer-events:none;
+}
+.cv-badge{
+  font-family:var(--head);font-size:11px;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;padding:4px 14px;
+  border:1px solid;
+}
+.badge-a{border-color:rgba(0,212,255,0.5);color:var(--cyan);background:rgba(0,212,255,0.06);}
+.badge-b{border-color:rgba(196,30,58,0.5);color:var(--red);background:rgba(196,30,58,0.06);}
+
+.cv-hint{
+  position:absolute;bottom:10px;left:0;right:0;text-align:center;
+  font-size:8px;color:rgba(0,212,255,0.25);letter-spacing:1.5px;pointer-events:none;
+}
+
+/* RIGHT PANEL */
+#infoPanel{
+  width:320px;flex-shrink:0;
+  background:rgba(5,16,31,0.96);
+  border-left:1px solid rgba(0,212,255,0.12);
+  display:flex;flex-direction:column;overflow-y:auto;
+}
+.psec{padding:14px 16px;border-bottom:1px solid rgba(0,212,255,0.08);}
+.ptitle{
+  font-size:8px;letter-spacing:3px;color:var(--cyan);text-transform:uppercase;
+  margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.ptitle::before{content:'';display:block;width:3px;height:11px;background:var(--red);flex-shrink:0;}
+
+/* SPEC TABLE */
+.spec-table{width:100%;border-collapse:collapse;font-size:10px;}
+.spec-table th{font-size:8px;letter-spacing:1.5px;color:rgba(0,212,255,0.45);text-transform:uppercase;padding:4px 6px;text-align:left;border-bottom:1px solid rgba(0,212,255,0.08);}
+.spec-table td{padding:5px 6px;border-bottom:1px solid rgba(0,212,255,0.05);vertical-align:top;}
+.spec-table td:first-child{color:rgba(0,212,255,0.6);width:42%;}
+.spec-table td.va{color:var(--cyan);}
+.spec-table td.vb{color:var(--red);}
+
+/* BOM TABLE */
+.bom{width:100%;border-collapse:collapse;font-size:9px;}
+.bom th{font-size:7px;letter-spacing:1.5px;color:rgba(0,212,255,0.4);text-transform:uppercase;padding:3px 5px;text-align:left;border-bottom:1px solid rgba(0,212,255,0.1);}
+.bom td{padding:4px 5px;border-bottom:1px solid rgba(0,212,255,0.04);vertical-align:top;}
+.bom td.cat{color:rgba(0,212,255,0.5);font-size:8px;}
+.bom td.part{color:rgba(255,255,255,0.8);}
+.bom td.price{text-align:right;color:var(--amber);white-space:nowrap;}
+.bom td.note{color:rgba(255,255,255,0.35);font-size:8px;}
+.bom tr.total td{color:var(--green);font-weight:bold;border-top:1px solid rgba(0,212,255,0.2);}
+.bom tr:hover td{background:rgba(0,212,255,0.03);}
+
+/* COMPONENT HIGHLIGHT */
+.comp-btn{
+  display:flex;align-items:center;gap:8px;padding:6px 8px;
+  border:1px solid rgba(0,212,255,0.1);background:transparent;
+  cursor:pointer;transition:all .15s;width:100%;text-align:left;margin-bottom:4px;
+  font-family:var(--mono);font-size:9px;color:rgba(0,212,255,0.7);
+  border-radius:1px;
+}
+.comp-btn:hover,.comp-btn.on{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,0.07);}
+.comp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:3px;} ::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.2);}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">Aqua<span>Swarm</span> <sub>ROBOT DESIGN REFERENCE — REV 0.1</sub></div>
+  </div>
+  <div class="hpills">
+    <div class="pill pc">DUAL-TYPE COMPARISON</div>
+    <div class="pill pg">BOM INCLUDED</div>
+    <div class="pill pr">FABRICATION-READY</div>
+  </div>
+</header>
+
+<div class="tabbar">
+  <button class="tab on" id="t0" onclick="setTab(0)">3D VIEW</button>
+  <span class="tab-sep">|</span>
+  <button class="tab" id="t1" onclick="setTab(1)">SPECIFICATIONS</button>
+  <span class="tab-sep">|</span>
+  <button class="tab" id="t2" onclick="setTab(2)">BILL OF MATERIALS</button>
+  <span class="tab-sep">|</span>
+  <button class="tab" id="t3" onclick="setTab(3)">COMPONENTS</button>
+</div>
+
+<div class="main">
+  <div class="canvases" id="canvasArea">
+
+    <!-- ROBOT A -->
+    <div class="cv-wrap" id="wrapA">
+      <canvas id="cvA"></canvas>
+      <div class="cv-label">
+        <div class="cv-badge badge-a">TYPE-A · POOL CLEANER AUV</div>
+      </div>
+      <div class="cv-hint">DRAG TO ROTATE · SCROLL TO ZOOM</div>
+    </div>
+
+    <!-- ROBOT B -->
+    <div class="cv-wrap" id="wrapB">
+      <canvas id="cvB"></canvas>
+      <div class="cv-label">
+        <div class="cv-badge badge-b">TYPE-B · TACTICAL MICRO-SWARM</div>
+      </div>
+      <div class="cv-hint">DRAG TO ROTATE · SCROLL TO ZOOM</div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div id="infoPanel">
+
+    <!-- TAB 0: summary -->
+    <div id="tab0">
+      <div class="psec">
+        <div class="ptitle">Design Overview</div>
+        <table class="spec-table">
+          <tr><th></th><th style="color:var(--cyan)">TYPE-A</th><th style="color:var(--red)">TYPE-B</th></tr>
+          <tr><td>Mission</td><td class="va">Pool cleaning</td><td class="vb">Tactical ISR</td></tr>
+          <tr><td>Length</td><td class="va">28 cm</td><td class="vb">12 cm</td></tr>
+          <tr><td>Diameter</td><td class="va">9 cm</td><td class="vb">5 cm</td></tr>
+          <tr><td>Weight (air)</td><td class="va">~420 g</td><td class="vb">~95 g</td></tr>
+          <tr><td>Depth rating</td><td class="va">5 m</td><td class="vb">30 m</td></tr>
+          <tr><td>Battery</td><td class="va">18650 × 4 (14.8V)</td><td class="vb">LiPo 1S (3.7V)</td></tr>
+          <tr><td>Runtime</td><td class="va">~90 min</td><td class="vb">~45 min</td></tr>
+          <tr><td>Nav</td><td class="va">Sonar + IMU</td><td class="vb">IMU + Acoustic</td></tr>
+          <tr><td>RF</td><td class="va">None (EMCON)</td><td class="vb">None (EMCON)</td></tr>
+          <tr><td>Unit cost</td><td class="va" style="color:var(--green)">~$280</td><td class="vb" style="color:var(--amber)">~$95</td></tr>
+        </table>
+      </div>
+      <div class="psec">
+        <div class="ptitle">Propulsion</div>
+        <table class="spec-table">
+          <tr><th></th><th style="color:var(--cyan)">TYPE-A</th><th style="color:var(--red)">TYPE-B</th></tr>
+          <tr><td>Main thruster</td><td class="va">BlueRobotics T200 × 1</td><td class="vb">Brushless 1104 × 2</td></tr>
+          <tr><td>Steering</td><td class="va">2× servo rudder</td><td class="vb">Differential thrust</td></tr>
+          <tr><td>Max speed</td><td class="va">0.8 m/s</td><td class="vb">1.4 m/s</td></tr>
+          <tr><td>Cleaning</td><td class="va">Brush + suction pump</td><td class="vb">N/A</td></tr>
+        </table>
+      </div>
+      <div class="psec">
+        <div class="ptitle">Waterproofing</div>
+        <table class="spec-table">
+          <tr><td>Housing</td><td class="va">PVC pipe + endcap</td><td class="vb">3D print PETG + epoxy</td></tr>
+          <tr><td>Sealing</td><td class="va">O-ring × 2 + RTV</td><td class="vb">O-ring × 1</td></tr>
+          <tr><td>Cable glands</td><td class="va">M8 × 4</td><td class="vb">M5 × 2</td></tr>
+          <tr><td>Pressure test</td><td class="va">0.5 bar (5 m equiv.)</td><td class="vb">3 bar (30 m equiv.)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 1: specs hidden by default -->
+    <div id="tab1" style="display:none">
+      <div class="psec">
+        <div class="ptitle">TYPE-A Full Specs — Pool Cleaner AUV</div>
+        <table class="spec-table">
+          <tr><td>MCU</td><td class="va">Raspberry Pi Zero 2W</td></tr>
+          <tr><td>Co-processor</td><td class="va">Arduino Nano (thruster PWM)</td></tr>
+          <tr><td>IMU</td><td class="va">MPU-9250 (9-DOF)</td></tr>
+          <tr><td>Sonar</td><td class="va">JSN-SR04T (waterproof US)</td></tr>
+          <tr><td>Depth sensor</td><td class="va">MS5837-30BA</td></tr>
+          <tr><td>Camera</td><td class="va">NONE — privacy/OPSEC</td></tr>
+          <tr><td>Thruster</td><td class="va">BlueRobotics T200 + ESC</td></tr>
+          <tr><td>Brush motor</td><td class="va">775 DC 12V waterproof</td></tr>
+          <tr><td>Suction pump</td><td class="va">Mini bilge pump 500GPH</td></tr>
+          <tr><td>Battery</td><td class="va">18650 × 4S1P = 14.8V 2.5Ah</td></tr>
+          <tr><td>Charging</td><td class="va">Pogo pin dock (base station)</td></tr>
+          <tr><td>Housing</td><td class="va">PVC 90mm OD schedule 40</td></tr>
+          <tr><td>Length total</td><td class="va">28 cm (hull) + 5 cm brush</td></tr>
+          <tr><td>Neutral buoyancy</td><td class="va">Foam trim blocks (adjustable)</td></tr>
+          <tr><td>Inter-unit comm</td><td class="va">Acoustic modem (DIY FSK)</td></tr>
+          <tr><td>Edge AI</td><td class="va">TFLite on RPi — flocking algo</td></tr>
+          <tr><td>OS</td><td class="va">Raspberry Pi OS Lite</td></tr>
+        </table>
+      </div>
+      <div class="psec">
+        <div class="ptitle">TYPE-B Full Specs — Tactical Micro AUV</div>
+        <table class="spec-table">
+          <tr><td>MCU</td><td class="vb">ESP32-S3 (dual-core 240MHz)</td></tr>
+          <tr><td>IMU</td><td class="vb">ICM-42688-P (6-DOF high perf)</td></tr>
+          <tr><td>Sonar</td><td class="vb">Ultrasonic transducer 40kHz</td></tr>
+          <tr><td>Depth sensor</td><td class="vb">MS5837-02BA (30m rating)</td></tr>
+          <tr><td>Camera</td><td class="vb">NONE — EMCON compliant</td></tr>
+          <tr><td>Thrusters</td><td class="vb">Brushless 1104 2300kv × 2</td></tr>
+          <tr><td>ESC</td><td class="vb">Flycolor 6A BLHeli-S × 2</td></tr>
+          <tr><td>Battery</td><td class="vb">LiPo 1S 3.7V 800mAh</td></tr>
+          <tr><td>Housing</td><td class="vb">PETG 3D print + epoxy coat</td></tr>
+          <tr><td>Length</td><td class="vb">12 cm torpedo form</td></tr>
+          <tr><td>Swarm comm</td><td class="vb">Acoustic pulse coding</td></tr>
+          <tr><td>Dead reckoning</td><td class="vb">Kalman filter on ICM-42688</td></tr>
+          <tr><td>Maneuver</td><td class="vb">±30° pitch via ballast shift</td></tr>
+          <tr><td>Payload</td><td class="vb">Modular bay 2 cm³</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: BOM -->
+    <div id="tab2" style="display:none">
+      <div class="psec">
+        <div class="ptitle">TYPE-A — Bill of Materials (~$280/unit)</div>
+        <table class="bom">
+          <tr><th>Category</th><th>Part</th><th>$</th></tr>
+          <tr><td class="cat">Compute</td><td class="part">Raspberry Pi Zero 2W</td><td class="price">$15</td></tr>
+          <tr><td class="cat"></td><td class="part">Arduino Nano clone</td><td class="price">$3</td></tr>
+          <tr><td class="cat">Sensors</td><td class="part">MPU-9250 IMU module</td><td class="price">$4</td></tr>
+          <tr><td class="cat"></td><td class="part">JSN-SR04T waterproof sonar</td><td class="price">$5</td></tr>
+          <tr><td class="cat"></td><td class="part">MS5837-30BA depth sensor</td><td class="price">$22</td></tr>
+          <tr><td class="cat">Propulsion</td><td class="part">BlueRobotics T200 thruster</td><td class="price">$169</td></tr>
+          <tr><td class="cat"></td><td class="part">BlueRobotics Basic ESC</td><td class="price">$25</td></tr>
+          <tr><td class="cat"></td><td class="part">MG996R servo × 2 (rudder)</td><td class="price">$6</td></tr>
+          <tr><td class="cat">Cleaning</td><td class="part">775 waterproof DC motor</td><td class="price">$8</td></tr>
+          <tr><td class="cat"></td><td class="part">Mini bilge pump 500GPH</td><td class="price">$12</td></tr>
+          <tr><td class="cat"></td><td class="part">Nylon brush head (custom)</td><td class="price">$4</td></tr>
+          <tr><td class="cat">Power</td><td class="part">Samsung 18650 × 4</td><td class="price">$12</td></tr>
+          <tr><td class="cat"></td><td class="part">BMS 4S 10A</td><td class="price">$5</td></tr>
+          <tr><td class="cat"></td><td class="part">Pogo pin connector set</td><td class="price">$3</td></tr>
+          <tr><td class="cat">Housing</td><td class="part">PVC 90mm pipe 30cm</td><td class="price">$4</td></tr>
+          <tr><td class="cat"></td><td class="part">Endcap × 2 + O-ring kit</td><td class="price">$6</td></tr>
+          <tr><td class="cat"></td><td class="part">M8 cable gland × 4</td><td class="price">$4</td></tr>
+          <tr><td class="cat"></td><td class="part">RTV silicone + foam trim</td><td class="price">$5</td></tr>
+          <tr><td class="cat">Misc</td><td class="part">Wiring, connectors, PCB</td><td class="price">$8</td></tr>
+          <tr class="total"><td colspan="2">TOTAL (TYPE-A / UNIT)</td><td class="price">~$280</td></tr>
+        </table>
+      </div>
+      <div class="psec">
+        <div class="ptitle">TYPE-B — Bill of Materials (~$95/unit)</div>
+        <table class="bom">
+          <tr><th>Category</th><th>Part</th><th>$</th></tr>
+          <tr><td class="cat">Compute</td><td class="part">ESP32-S3 DevKit</td><td class="price">$5</td></tr>
+          <tr><td class="cat">Sensors</td><td class="part">ICM-42688-P IMU breakout</td><td class="price">$8</td></tr>
+          <tr><td class="cat"></td><td class="part">Ultrasonic transducer 40kHz</td><td class="price">$3</td></tr>
+          <tr><td class="cat"></td><td class="part">MS5837-02BA depth sensor</td><td class="price">$18</td></tr>
+          <tr><td class="cat">Propulsion</td><td class="part">Brushless 1104 2300kv × 2</td><td class="price">$14</td></tr>
+          <tr><td class="cat"></td><td class="part">BLHeli-S 6A ESC × 2</td><td class="price">$8</td></tr>
+          <tr><td class="cat">Power</td><td class="part">LiPo 1S 800mAh 30C</td><td class="price">$6</td></tr>
+          <tr><td class="cat"></td><td class="part">TP4056 charging module</td><td class="price">$1</td></tr>
+          <tr><td class="cat">Housing</td><td class="part">PETG filament (150g)</td><td class="price">$5</td></tr>
+          <tr><td class="cat"></td><td class="part">O-ring kit + epoxy coat</td><td class="price">$4</td></tr>
+          <tr><td class="cat"></td><td class="part">M5 cable gland × 2</td><td class="price">$2</td></tr>
+          <tr><td class="cat">Acoustic</td><td class="part">DIY FSK modem (piezo + amp)</td><td class="price">$7</td></tr>
+          <tr><td class="cat">Misc</td><td class="part">Wiring, micro connectors</td><td class="price">$4</td></tr>
+          <tr class="total"><td colspan="2">TOTAL (TYPE-B / UNIT)</td><td class="price">~$95</td></tr>
+        </table>
+      </div>
+      <div class="psec">
+        <div class="ptitle">Swarm of 6 — Total Cost Estimate</div>
+        <table class="bom">
+          <tr><th>Config</th><th>Units</th><th>Total</th></tr>
+          <tr><td class="part">TYPE-A × 6</td><td class="cat">6</td><td class="price">~$1,680</td></tr>
+          <tr><td class="part">TYPE-B × 6</td><td class="cat">6</td><td class="price">~$570</td></tr>
+          <tr><td class="part">Mixed 3A + 3B</td><td class="cat">6</td><td class="price">~$1,125</td></tr>
+          <tr><td class="part">Base station dock</td><td class="cat">1</td><td class="price">~$80</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 3: components highlight -->
+    <div id="tab3" style="display:none">
+      <div class="psec">
+        <div class="ptitle">Click to highlight on 3D model</div>
+        <div id="compListA">
+          <div style="font-size:9px;color:rgba(0,212,255,0.4);margin-bottom:6px;letter-spacing:1px;">— TYPE-A —</div>
+          <button class="comp-btn" onclick="highlight('A','thruster')"><div class="comp-dot" style="background:#00d4ff"></div>T200 THRUSTER + ESC</button>
+          <button class="comp-btn" onclick="highlight('A','brush')"><div class="comp-dot" style="background:#00ff88"></div>BRUSH + SUCTION HEAD</button>
+          <button class="comp-btn" onclick="highlight('A','battery')"><div class="comp-dot" style="background:#ffaa00"></div>18650 BATTERY PACK (4S)</button>
+          <button class="comp-btn" onclick="highlight('A','compute')"><div class="comp-dot" style="background:#aa88ff"></div>RPi ZERO 2W + ARDUINO</button>
+          <button class="comp-btn" onclick="highlight('A','sonar')"><div class="comp-dot" style="background:#ff6688"></div>SONAR JSN-SR04T</button>
+          <button class="comp-btn" onclick="highlight('A','imu')"><div class="comp-dot" style="background:#ffdd44"></div>IMU MPU-9250</button>
+          <button class="comp-btn" onclick="highlight('A','rudder')"><div class="comp-dot" style="background:#44ffdd"></div>SERVO RUDDER × 2</button>
+          <button class="comp-btn" onclick="highlight('A','pogo')"><div class="comp-dot" style="background:#ff8844"></div>POGO PIN DOCK CONTACT</button>
+          <button class="comp-btn" onclick="highlight('A','none')"><div class="comp-dot" style="background:#333"></div>CLEAR ALL</button>
+        </div>
+        <div id="compListB" style="margin-top:14px">
+          <div style="font-size:9px;color:rgba(196,30,58,0.6);margin-bottom:6px;letter-spacing:1px;">— TYPE-B —</div>
+          <button class="comp-btn" onclick="highlight('B','thruster')"><div class="comp-dot" style="background:#ff4466"></div>BRUSHLESS 1104 × 2</button>
+          <button class="comp-btn" onclick="highlight('B','battery')"><div class="comp-dot" style="background:#ffaa00"></div>LiPo 1S 800mAh</button>
+          <button class="comp-btn" onclick="highlight('B','compute')"><div class="comp-dot" style="background:#aa88ff"></div>ESP32-S3 + ICM-42688</button>
+          <button class="comp-btn" onclick="highlight('B','sonar')"><div class="comp-dot" style="background:#ff6688"></div>40kHz ACOUSTIC TRANSDUCER</button>
+          <button class="comp-btn" onclick="highlight('B','payload')"><div class="comp-dot" style="background:#44ffaa"></div>MODULAR PAYLOAD BAY</button>
+          <button class="comp-btn" onclick="highlight('B','none')"><div class="comp-dot" style="background:#333"></div>CLEAR ALL</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /infoPanel -->
+</div><!-- /main -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ─── TAB LOGIC ────────────────────────────────────────────────────────────────
+function setTab(n) {
+  [0,1,2,3].forEach(i => {
+    document.getElementById('t'+i).classList.toggle('on', i===n);
+    document.getElementById('tab'+i).style.display = i===n ? '' : 'none';
+  });
+}
+setTab(0);
+
+// ─── SCENE FACTORY ────────────────────────────────────────────────────────────
+function makeScene(canvasId, wrapId, bgColor) {
+  const wrap = document.getElementById(wrapId);
+  const canvas = document.getElementById(canvasId);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.shadowMap.enabled = true;
+  renderer.setClearColor(bgColor);
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(bgColor, 0.025);
+
+  const camera = new THREE.PerspectiveCamera(50, 1, 0.01, 500);
+  camera.position.set(0, 18, 30);
+  camera.lookAt(0, 0, 0);
+
+  scene.add(new THREE.AmbientLight(0x112244, 1.5));
+  const dir = new THREE.DirectionalLight(0x88ccff, 1.2);
+  dir.position.set(10, 20, 10);
+  scene.add(dir);
+  const rim = new THREE.DirectionalLight(0x004466, 0.8);
+  rim.position.set(-10, -5, -10);
+  scene.add(rim);
+
+  // grid floor
+  const grid = new THREE.GridHelper(40, 20, 0x00d4ff, 0x00d4ff);
+  grid.material.opacity = 0.07; grid.material.transparent = true;
+  grid.position.y = -6;
+  scene.add(grid);
+
+  // Orbit state
+  let sph = {theta: 0.4, phi: 1.1, r: 30};
+  let target = {...sph};
+  let dragging = false;
+  let prev = {x:0,y:0};
+
+  canvas.addEventListener('mousedown', e => { dragging=true; prev={x:e.clientX,y:e.clientY}; });
+  window.addEventListener('mouseup', () => dragging=false);
+  canvas.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const dx=e.clientX-prev.x, dy=e.clientY-prev.y;
+    target.theta -= dx*0.01; target.phi = Math.max(0.08, Math.min(Math.PI*0.48, target.phi+dy*0.01));
+    prev={x:e.clientX,y:e.clientY};
+  });
+  canvas.addEventListener('wheel', e => {
+    target.r = Math.max(8, Math.min(80, target.r+e.deltaY*0.05));
+  });
+
+  function updateCam() {
+    sph.theta += (target.theta-sph.theta)*0.1;
+    sph.phi   += (target.phi  -sph.phi  )*0.1;
+    sph.r     += (target.r    -sph.r    )*0.1;
+    camera.position.set(
+      sph.r*Math.sin(sph.phi)*Math.sin(sph.theta),
+      sph.r*Math.cos(sph.phi),
+      sph.r*Math.sin(sph.phi)*Math.cos(sph.theta)
+    );
+    camera.lookAt(0, 0, 0);
+  }
+
+  function resize() {
+    const w=wrap.clientWidth, h=wrap.clientHeight;
+    renderer.setSize(w,h,false);
+    camera.aspect=w/h; camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  return { scene, camera, renderer, updateCam };
+}
+
+// ─── SHARED MATERIALS / UTILS ─────────────────────────────────────────────────
+const MAT = {
+  hull:    c => new THREE.MeshPhongMaterial({color:c, shininess:80}),
+  metal:   c => new THREE.MeshPhongMaterial({color:c, shininess:120, specular:0xffffff}),
+  glow:    (c,e) => new THREE.MeshPhongMaterial({color:c, emissive:e||c, emissiveIntensity:0.6, shininess:30}),
+  glass:   c => new THREE.MeshPhongMaterial({color:c, transparent:true, opacity:0.35, shininess:120}),
+  wire:    c => new THREE.MeshBasicMaterial({color:c, wireframe:true}),
+};
+
+function edges(geo, color, parent) {
+  const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({color, transparent:true, opacity:0.5}));
+  parent.add(e);
+  return e;
+}
+
+function label3D(scene, text, pos, color=0x00d4ff) {
+  // We'll use a simple sprite approach via canvas texture
+  const cv = document.createElement('canvas'); cv.width=256; cv.height=64;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle='rgba(0,0,0,0)';
+  ctx.fillRect(0,0,256,64);
+  ctx.font='bold 20px "Share Tech Mono"';
+  ctx.fillStyle=`#${color.toString(16).padStart(6,'0')}`;
+  ctx.textAlign='center';
+  ctx.fillText(text, 128, 38);
+  const tex = new THREE.CanvasTexture(cv);
+  const mat = new THREE.SpriteMaterial({map:tex, transparent:true, depthWrite:false});
+  const sprite = new THREE.Sprite(mat);
+  sprite.position.copy(pos);
+  sprite.scale.set(6, 1.5, 1);
+  scene.add(sprite);
+  return sprite;
+}
+
+// ─── TYPE-A: POOL CLEANER AUV ────────────────────────────────────────────────
+const scA = makeScene('cvA', 'wrapA', 0x05101f);
+const partMapA = {}; // name -> mesh array for highlight
+
+function buildRobotA(scene) {
+  const root = new THREE.Group();
+  scene.add(root);
+
+  // === HULL (PVC cylinder) ===
+  const hullGeo = new THREE.CylinderGeometry(1, 1, 7, 32);
+  const hullMesh = new THREE.Mesh(hullGeo, MAT.hull(0x1a3a5c));
+  hullMesh.rotation.z = Math.PI/2;
+  root.add(hullMesh);
+  edges(hullGeo, 0x00d4ff, hullMesh);
+  partMapA.hull = [hullMesh];
+
+  // endcap front
+  const capF = new THREE.Mesh(new THREE.SphereGeometry(1,16,8,0,Math.PI*2,0,Math.PI/2), MAT.hull(0x1a3a5c));
+  capF.rotation.z = -Math.PI/2; capF.position.x = 3.5;
+  root.add(capF);
+  // endcap rear
+  const capR = new THREE.Mesh(new THREE.SphereGeometry(1,16,8,Math.PI/2,Math.PI*2,Math.PI/2,Math.PI/2), MAT.hull(0x132d4a));
+  capR.rotation.z = Math.PI/2; capR.position.x = -3.5;
+  root.add(capR);
+
+  // === SONAR dome (front) ===
+  const sonarGeo = new THREE.SphereGeometry(0.6,12,8);
+  const sonarMesh = new THREE.Mesh(sonarGeo, MAT.glow(0xff4466, 0x880022));
+  sonarMesh.position.x = 3.9;
+  root.add(sonarMesh);
+  partMapA.sonar = [sonarMesh];
+  label3D(scene, 'SONAR', new THREE.Vector3(6, 2, 0), 0xff6688);
+
+  // === POGO PIN ring ===
+  const pogoGeo = new THREE.TorusGeometry(0.85, 0.12, 8, 20);
+  const pogoMesh = new THREE.Mesh(pogoGeo, MAT.metal(0xff8844));
+  pogoMesh.position.x = -3.6; pogoMesh.rotation.y = Math.PI/2;
+  root.add(pogoMesh);
+  partMapA.pogo = [pogoMesh];
+  label3D(scene, 'POGO DOCK', new THREE.Vector3(-6, 2, 0), 0xff8844);
+
+  // === THRUSTER (rear) ===
+  const thrGrp = new THREE.Group();
+  thrGrp.position.x = -4.2;
+  // shroud
+  const shroudGeo = new THREE.CylinderGeometry(0.8, 0.8, 1.4, 16);
+  const shroud = new THREE.Mesh(shroudGeo, MAT.metal(0x0a2040));
+  shroud.rotation.z = Math.PI/2;
+  edges(shroudGeo, 0x00d4ff, shroud);
+  thrGrp.add(shroud);
+  // prop (3 blades)
+  for (let i=0; i<3; i++) {
+    const bGeo = new THREE.BoxGeometry(0.08, 0.55, 0.18);
+    const b = new THREE.Mesh(bGeo, MAT.metal(0x2255aa));
+    b.position.set(0, 0.35*Math.cos(i*Math.PI*2/3), 0.35*Math.sin(i*Math.PI*2/3));
+    b.rotation.x = i*Math.PI*2/3;
+    thrGrp.add(b);
+  }
+  root.add(thrGrp);
+  partMapA.thruster = [thrGrp];
+  label3D(scene, 'T200 THRUSTER', new THREE.Vector3(-7, -2.5, 0), 0x00d4ff);
+
+  // === RUDDER fins ===
+  const finGeo = new THREE.BoxGeometry(1.4, 0.08, 0.8);
+  const fin1 = new THREE.Mesh(finGeo, MAT.metal(0x0d2a50));
+  fin1.position.set(-2.8, 0, 0.9);
+  fin1.rotation.y = 0.15;
+  edges(finGeo, 0x44ccff, fin1);
+  const fin2 = new THREE.Mesh(finGeo, MAT.metal(0x0d2a50));
+  fin2.position.set(-2.8, 0, -0.9);
+  fin2.rotation.y = -0.15;
+  edges(finGeo, 0x44ccff, fin2);
+  const finV = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.8, 0.08), MAT.metal(0x0d2a50));
+  finV.position.set(-2.8, 0.4, 0);
+  root.add(fin1, fin2, finV);
+  partMapA.rudder = [fin1, fin2, finV];
+  label3D(scene, 'RUDDER', new THREE.Vector3(-2, 2.5, 1.5), 0x44ffdd);
+
+  // === BRUSH HEAD (bottom front) ===
+  const brushGrp = new THREE.Group();
+  brushGrp.position.set(2.5, -1.1, 0);
+  // brush housing
+  const brushHouse = new THREE.Mesh(new THREE.BoxGeometry(2.2,0.5,1.5), MAT.hull(0x0a2a10));
+  edges(new THREE.BoxGeometry(2.2,0.5,1.5), 0x00ff88, brushHouse);
+  brushGrp.add(brushHouse);
+  // brush bristles (lines)
+  for (let i=-4; i<=4; i++) {
+    const bGeo = new THREE.CylinderGeometry(0.025,0.025,0.4,4);
+    const b = new THREE.Mesh(bGeo, new THREE.MeshBasicMaterial({color:0x00ff88}));
+    b.position.set(i*0.22, -0.45, 0);
+    brushGrp.add(b);
+  }
+  root.add(brushGrp);
+  partMapA.brush = [brushGrp];
+  label3D(scene, 'BRUSH HEAD', new THREE.Vector3(4, -3.5, 0), 0x00ff88);
+
+  // === BATTERY compartment indicator (internal stripe) ===
+  const batGeo = new THREE.BoxGeometry(3, 0.7, 1.2);
+  const batMesh = new THREE.Mesh(batGeo, MAT.glow(0x443300, 0xffaa00));
+  batMesh.position.set(0.5, 0, 0);
+  root.add(batMesh);
+  partMapA.battery = [batMesh];
+  label3D(scene, '18650 × 4S', new THREE.Vector3(1, 2.5, 1.5), 0xffaa00);
+
+  // === COMPUTE board indicator ===
+  const compGeo = new THREE.BoxGeometry(1.5, 0.12, 1.0);
+  const compMesh = new THREE.Mesh(compGeo, MAT.glow(0x220044, 0xaa88ff));
+  compMesh.position.set(-0.5, 0.7, 0);
+  root.add(compMesh);
+  partMapA.compute = [compMesh];
+  label3D(scene, 'RPi + ARDUINO', new THREE.Vector3(-1, -3.5, 0), 0xaa88ff);
+
+  // === IMU chip ===
+  const imuGeo = new THREE.BoxGeometry(0.4, 0.12, 0.4);
+  const imuMesh = new THREE.Mesh(imuGeo, MAT.glow(0x333300, 0xffdd44));
+  imuMesh.position.set(1.2, 0.65, -0.5);
+  root.add(imuMesh);
+  partMapA.imu = [imuMesh];
+  label3D(scene, 'IMU', new THREE.Vector3(2, -2.5, -1.5), 0xffdd44);
+
+  // cable glands on hull
+  for (let a of [0, Math.PI/2, Math.PI, -Math.PI/2]) {
+    const cg = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,0.25,8), MAT.metal(0x334455));
+    cg.position.set(-3.2, Math.sin(a)*1.0, Math.cos(a)*1.0);
+    cg.rotation.z = Math.PI/2;
+    root.add(cg);
+  }
+
+  return root;
+}
+
+const robotA = buildRobotA(scA.scene);
+let hlA = null;
+
+// ─── TYPE-B: TACTICAL MICRO AUV ──────────────────────────────────────────────
+const scB = makeScene('cvB', 'wrapB', 0x100510);
+const partMapB = {};
+
+function buildRobotB(scene) {
+  const root = new THREE.Group();
+  scene.add(root);
+
+  // === HULL (PETG torpedo) ===
+  // Use lathe for streamlined shape
+  const pts = [];
+  for (let i=0; i<=20; i++) {
+    const t = i/20;
+    const r = t < 0.15 ? t/0.15 * 0.5 :
+              t < 0.85 ? 0.5 :
+              (1-t)/0.15 * 0.5;
+    pts.push(new THREE.Vector2(r, (t-0.5)*5));
+  }
+  const latheGeo = new THREE.LatheGeometry(pts, 24);
+  const hullMesh = new THREE.Mesh(latheGeo, MAT.hull(0x2a0a1a));
+  hullMesh.rotation.x = Math.PI/2;
+  root.add(hullMesh);
+  partMapB.hull = [hullMesh];
+
+  // edge loop
+  const hullEdge = new THREE.LineSegments(new THREE.EdgesGeometry(latheGeo), new THREE.LineBasicMaterial({color:0xc41e3a, transparent:true, opacity:0.4}));
+  hullEdge.rotation.x = Math.PI/2;
+  root.add(hullEdge);
+
+  // === ACOUSTIC TRANSDUCER (nose) ===
+  const sonarGeo = new THREE.SphereGeometry(0.28,10,8);
+  const sonarMesh = new THREE.Mesh(sonarGeo, MAT.glow(0xff4466, 0x880022));
+  sonarMesh.position.z = 2.65;
+  root.add(sonarMesh);
+  partMapB.sonar = [sonarMesh];
+  label3D(scene, 'ACOUSTIC', new THREE.Vector3(1.8, 2, 0), 0xff6688);
+
+  // === DUAL THRUSTERS (rear, side by side) ===
+  const thrGrp = new THREE.Group();
+  thrGrp.position.z = -2.7;
+  for (let side of [-0.35, 0.35]) {
+    const shroud = new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.2,0.5,12), MAT.metal(0x1a0a1a));
+    shroud.rotation.x = Math.PI/2; shroud.position.x = side;
+    edges(new THREE.CylinderGeometry(0.2,0.2,0.5,12), 0xc41e3a, shroud);
+    thrGrp.add(shroud);
+    // prop
+    for (let i=0;i<3;i++) {
+      const b = new THREE.Mesh(new THREE.BoxGeometry(0.04,0.18,0.06), MAT.metal(0x880022));
+      b.position.set(side, Math.cos(i*Math.PI*2/3)*0.16, Math.sin(i*Math.PI*2/3)*0.16-0.05);
+      b.rotation.z = i*Math.PI*2/3;
+      thrGrp.add(b);
+    }
+  }
+  root.add(thrGrp);
+  partMapB.thruster = [thrGrp];
+  label3D(scene, '1104 × 2', new THREE.Vector3(-2, -2, 0), 0xff4466);
+
+  // === BATTERY (center) ===
+  const batGeo = new THREE.BoxGeometry(0.5, 0.3, 1.2);
+  const batMesh = new THREE.Mesh(batGeo, MAT.glow(0x332200, 0xffaa00));
+  batMesh.position.set(0, 0, 0.2);
+  root.add(batMesh);
+  partMapB.battery = [batMesh];
+  label3D(scene, 'LiPo 1S', new THREE.Vector3(-2, 1.5, 0), 0xffaa00);
+
+  // === COMPUTE (ESP32 + IMU) ===
+  const compGeo = new THREE.BoxGeometry(0.6, 0.1, 0.5);
+  const compMesh = new THREE.Mesh(compGeo, MAT.glow(0x220044, 0xaa88ff));
+  compMesh.position.set(0, 0.3, 0.8);
+  root.add(compMesh);
+  partMapB.compute = [compMesh];
+  label3D(scene, 'ESP32-S3', new THREE.Vector3(2, 1.5, 0), 0xaa88ff);
+
+  // === PAYLOAD BAY ===
+  const payGeo = new THREE.BoxGeometry(0.55, 0.35, 0.5);
+  const payMesh = new THREE.Mesh(payGeo, MAT.glass(0x00ff88));
+  payMesh.position.set(0, -0.15, -0.5);
+  root.add(payMesh);
+  partMapB.payload = [payMesh];
+  label3D(scene, 'PAYLOAD BAY', new THREE.Vector3(2, -2, 0), 0x44ffaa);
+
+  // === STABILIZER FINS ===
+  const finMat = MAT.metal(0x1a051a);
+  for (let a of [0, Math.PI/2, Math.PI, -Math.PI/2]) {
+    const fGeo = new THREE.BoxGeometry(0.06, 0.55, 0.4);
+    const f = new THREE.Mesh(fGeo, finMat);
+    f.position.set(Math.sin(a)*0.42, Math.cos(a)*0.42, -2.1);
+    f.rotation.z = a;
+    edges(fGeo, 0x660033, f);
+    root.add(f);
+  }
+
+  // === O-RING grooves (visual) ===
+  for (let z of [-1.5, 1.5]) {
+    const rGeo = new THREE.TorusGeometry(0.5, 0.04, 8, 24);
+    const rMesh = new THREE.Mesh(rGeo, MAT.glow(0x003300, 0x00ff88));
+    rMesh.position.z = z;
+    rMesh.rotation.x = Math.PI/2;
+    root.add(rMesh);
+  }
+
+  return root;
+}
+
+const robotB = buildRobotB(scB.scene);
+let hlB = null;
+
+// ─── HIGHLIGHT SYSTEM ─────────────────────────────────────────────────────────
+const origMatsA = {}, origMatsB = {};
+// Store original materials on first highlight
+function highlight(type, part) {
+  const map = type==='A' ? partMapA : partMapB;
+  const origMats = type==='A' ? origMatsA : origMatsB;
+
+  // Restore all
+  Object.entries(map).forEach(([key, meshes]) => {
+    meshes.forEach(m => {
+      m.traverse(child => {
+        if (child.isMesh && origMats[child.uuid]) {
+          child.material = origMats[child.uuid];
+        }
+      });
+    });
+  });
+
+  if (part === 'none') {
+    document.querySelectorAll('.comp-btn').forEach(b => b.classList.remove('on'));
+    return;
+  }
+
+  document.querySelectorAll('.comp-btn').forEach(b => b.classList.remove('on'));
+  event.currentTarget && event.currentTarget.classList.add('on');
+
+  const targets = map[part] || [];
+  targets.forEach(m => {
+    m.traverse(child => {
+      if (child.isMesh) {
+        if (!origMats[child.uuid]) origMats[child.uuid] = child.material;
+        child.material = new THREE.MeshPhongMaterial({
+          color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.8,
+          transparent: true, opacity: 0.9
+        });
+      }
+    });
+  });
+}
+
+// ─── ANIMATION LOOP ───────────────────────────────────────────────────────────
+let t = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  t += 0.008;
+
+  // Slow auto-rotate when not dragging
+  robotA.rotation.y = t * 0.3;
+  robotB.rotation.y = -t * 0.3;
+
+  // Thruster prop spin
+  if (partMapA.thruster) {
+    partMapA.thruster[0].children.forEach((c,i) => {
+      if (i > 0) c.rotation.x += 0.15;
+    });
+  }
+
+  scA.updateCam(); scA.renderer.render(scA.scene, scA.camera);
+  scB.updateCam(); scB.renderer.render(scB.scene, scB.camera);
+}
+animate();
+</script>
+</body>
+</html>
