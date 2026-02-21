@@ -193,7 +193,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;heigh
   </div>
 </div>
 
-<div class="dock-label" id="dockLbl">⚡ SURFACE CHARGING DOCK</div>
+<div class="dock-label" id="dockLbl">⚡ WIRELESS CHARGING PAD</div>
 <div class="hint">DRAG TO ROTATE · SCROLL TO ZOOM</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -300,40 +300,47 @@ for(let i=1;i<4;i++){
 }
 
 // ══════════════════════════════════════════════════════════
-// SURFACE DOCK (충전 스테이션 — 물 위)
+// POOL DECK & WIRELESS CHARGING PAD (수영장 밖 데크 + 무선 충전 패드)
 // ══════════════════════════════════════════════════════════
-const DOCK_POS=new THREE.Vector3(-PW/2+4, WATER_Y+1.0, -PD/2+4);
+// DECK GEOMETRY (Concrete surround)
+const deckGroup = new THREE.Group();
+const deckMat = new THREE.MeshPhongMaterial({color:0x333333, shininess:10});
+// Create 4 planes around the pool
+// Left
+const dLeft = new THREE.Mesh(new THREE.PlaneGeometry(20, PD+20), deckMat);
+dLeft.rotation.x = -Math.PI/2; dLeft.position.set(-PW/2 - 10, FLOOR_Y + PH, 0); deckGroup.add(dLeft);
+// Right
+const dRight = new THREE.Mesh(new THREE.PlaneGeometry(20, PD+20), deckMat);
+dRight.rotation.x = -Math.PI/2; dRight.position.set(PW/2 + 10, FLOOR_Y + PH, 0); deckGroup.add(dRight);
+// Top
+const dTop = new THREE.Mesh(new THREE.PlaneGeometry(PW, 20), deckMat);
+dTop.rotation.x = -Math.PI/2; dTop.position.set(0, FLOOR_Y + PH, -PD/2 - 10); deckGroup.add(dTop);
+// Bottom
+const dBot = new THREE.Mesh(new THREE.PlaneGeometry(PW, 20), deckMat);
+dBot.rotation.x = -Math.PI/2; dBot.position.set(0, FLOOR_Y + PH, PD/2 + 10); deckGroup.add(dBot);
 
-const dockGroup=new THREE.Group();
-// Platform
-const platG=new THREE.BoxGeometry(6,0.4,6);
-const platM=new THREE.Mesh(platG,new THREE.MeshPhongMaterial({color:0x1a1a00,emissive:0x555500,emissiveIntensity:.3,shininess:80}));
-dockGroup.add(platM);
-// Edge trim
-const eTrim=new THREE.LineSegments(new THREE.EdgesGeometry(platG),new THREE.LineBasicMaterial({color:0xffaa00,transparent:true,opacity:.8}));
-dockGroup.add(eTrim);
-// Charging pads (pogo contacts)
-for(let px of[-1.2,0,1.2]){
-  const pad=new THREE.Mesh(new THREE.CylinderGeometry(.3,.3,.12,16),new THREE.MeshPhongMaterial({color:0xffdd00,emissive:0xaa8800,emissiveIntensity:.5}));
-  pad.position.set(px,.28,0); dockGroup.add(pad);
-}
-// Pole + indicator light
-const pole=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,4,8),new THREE.MeshPhongMaterial({color:0x333300}));
-pole.position.set(2.5,2,2.5); dockGroup.add(pole);
-const light=new THREE.Mesh(new THREE.SphereGeometry(.25,10,8),new THREE.MeshPhongMaterial({color:0xffaa00,emissive:0xffaa00,emissiveIntensity:1}));
-light.position.set(2.5,4.2,2.5); dockGroup.add(light);
-const dockLight=new THREE.PointLight(0xffaa00,2.5,18);
-dockLight.position.set(2.5,4,2.5); dockGroup.add(dockLight);
+scene.add(deckGroup);
 
-dockGroup.position.copy(DOCK_POS);
-scene.add(dockGroup);
+// WIRELESS CHARGING PAD (2D Flat Mat)
+const PAD_POS = new THREE.Vector3(-PW/2 - 8, FLOOR_Y + PH + 0.05, -PD/2 + 8); // On Left Deck
+const padGeo = new THREE.PlaneGeometry(6, 6);
+const padMat = new THREE.MeshPhongMaterial({color:0x111111, emissive:0x004400, side:THREE.DoubleSide});
+const pad = new THREE.Mesh(padGeo, padMat);
+pad.rotation.x = -Math.PI/2;
+pad.position.copy(PAD_POS);
+scene.add(pad);
 
-// Ramp (로봇이 물 밖으로 올라오는 경사로)
-const rampG=new THREE.BoxGeometry(3,.15,3);
-const ramp=new THREE.Mesh(rampG,new THREE.MeshPhongMaterial({color:0x0a1a0a,transparent:true,opacity:.7}));
-ramp.rotation.z=Math.PI*0.04;
-ramp.position.set(-PW/2+4, WATER_Y-.5, -PD/2+4);
-scene.add(ramp);
+// Charging Icon (Simple texture or shape on pad)
+const iconGeo = new THREE.RingGeometry(1.5, 2, 32);
+const iconMat = new THREE.MeshBasicMaterial({color:0x00ff00, side:THREE.DoubleSide});
+const icon = new THREE.Mesh(iconGeo, iconMat);
+icon.rotation.x = -Math.PI/2;
+icon.position.set(PAD_POS.x, PAD_POS.y + 0.01, PAD_POS.z);
+scene.add(icon);
+
+// DOCK_POS variable for robots (center of pad)
+const DOCK_POS = PAD_POS.clone();
+DOCK_POS.y += 0.5; // Target height above pad
 
 // ══════════════════════════════════════════════════════════
 // DEBRIS SYSTEM — 쓰레기!
@@ -356,7 +363,7 @@ function spawnDebris(n=20){
   for(let i=0;i<n;i++){
     const t=DEBRIS_TYPES[Math.floor(Math.random()*DEBRIS_TYPES.length)];
     const geo=t[1]();
-    const mat=new THREE.MeshPhongMaterial({color:t[2],transparent:true,opacity:.85+Math.random()*.15});
+    const mat=new THREE.MeshPhongMaterial({color:t[2],emissive:t[2],emissiveIntensity:0.3,transparent:true,opacity:.95,side:THREE.DoubleSide});
     const mesh=new THREE.Mesh(geo,mat);
     // Random position on pool floor + random depth scatter
     const depth=Math.random(); // 0=floor, 1=mid water
@@ -433,25 +440,62 @@ function randInSector(sec){
 
 function mkRoboMesh(color){
   const g=new THREE.Group();
-  // Torpedo body
-  const pts=[];
-  for(let i=0;i<=16;i++){const t=i/16;const r=t<.12?t/.12*.45:t>.82?(1-t)/.18*.45:.45;pts.push(new THREE.Vector2(r,(t-.5)*2.8));}
-  const latGeo=new THREE.LatheGeometry(pts,20);
-  const body=new THREE.Mesh(latGeo,new THREE.MeshPhongMaterial({color,emissive:color,emissiveIntensity:.18,shininess:70}));
-  body.rotation.x=Math.PI/2; g.add(body);
-  // Fins
-  for(let a of[0,Math.PI/2,Math.PI,-Math.PI/2]){
-    const f=new THREE.Mesh(new THREE.BoxGeometry(.06,.45,.3),new THREE.MeshPhongMaterial({color,transparent:true,opacity:.7}));
-    f.position.set(Math.sin(a)*.38,Math.cos(a)*.38,-1.2); f.rotation.z=a; g.add(f);
-  }
-  // Brush disc (bottom)
-  const brush=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.12,16),new THREE.MeshPhongMaterial({color:0x00ff88,emissive:0x004400,emissiveIntensity:.4}));
-  brush.position.set(0,-.45,.3); g.add(brush);
-  // Point glow
-  const pl=new THREE.PointLight(color,.9,5); g.add(pl);
-  // Suction tube (bottom)
-  const tube=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,.5,8),new THREE.MeshPhongMaterial({color:0x004400}));
-  tube.position.set(0,-.7,.3); g.add(tube);
+
+  // 1. CHASSIS (Wedge Shape - Tank Style)
+  const shape = new THREE.Shape();
+  shape.moveTo(0,0);
+  shape.lineTo(0.8, 0);      // Bottom
+  shape.lineTo(0.8, 0.35);   // Back
+  shape.lineTo(0.3, 0.45);   // Top slope start
+  shape.lineTo(0, 0.15);     // Nose
+  shape.lineTo(0,0);
+
+  const extrudeSettings = { steps: 1, depth: 0.6, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 2 };
+  const chassisGeo = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+  chassisGeo.center();
+
+  const chassis = new THREE.Mesh(chassisGeo, new THREE.MeshPhongMaterial({color, emissive:color, emissiveIntensity:.3, shininess:80}));
+  // Align so +Z is forward (Nose). Extrusion is along Z by default.
+  // We rotate Y-90 to align shape length (X) to Z.
+  chassis.rotation.y = -Math.PI/2;
+  g.add(chassis);
+
+  // 2. TRACKS (Silicone Treads)
+  // Long along Z axis.
+  const trackGeo = new THREE.BoxGeometry(0.15, 0.22, 0.9);
+  const trackMat = new THREE.MeshPhongMaterial({color:0x111111, bumpScale:0.05});
+
+  const leftTrack = new THREE.Mesh(trackGeo, trackMat);
+  leftTrack.position.set(-0.35, -0.15, 0);
+  g.add(leftTrack);
+
+  const rightTrack = new THREE.Mesh(trackGeo, trackMat);
+  rightTrack.position.set(0.35, -0.15, 0);
+  g.add(rightTrack);
+
+  // 3. VERTICAL THRUSTERS (Hydrodynamic Downforce - Rear mounted)
+  const thrustGeo = new THREE.CylinderGeometry(0.1, 0.08, 0.15, 16);
+  const thrustMat = new THREE.MeshPhongMaterial({color:0x444444});
+
+  const tLeft = new THREE.Mesh(thrustGeo, thrustMat);
+  tLeft.position.set(-0.25, 0.25, -0.3);
+  g.add(tLeft);
+
+  const tRight = new THREE.Mesh(thrustGeo, thrustMat);
+  tRight.position.set(0.25, 0.25, -0.3);
+  g.add(tRight);
+
+  // Propellers inside thrusters
+  const propGeo = new THREE.PlaneGeometry(0.14, 0.02);
+  const propMat = new THREE.MeshBasicMaterial({color:0x00ff88, side:THREE.DoubleSide});
+  const p1 = new THREE.Mesh(propGeo, propMat); p1.rotation.x=Math.PI/2; p1.position.y=0.08; tLeft.add(p1);
+  const p2 = new THREE.Mesh(propGeo, propMat); p2.rotation.x=Math.PI/2; p2.position.y=0.08; tRight.add(p2);
+
+  // 4. SENSORS / LIGHTS (Front Nose)
+  const light = new THREE.PointLight(color, 0.8, 6);
+  light.position.set(0, 0.1, 0.45); // Move to nose
+  g.add(light);
+
   return g;
 }
 
@@ -463,7 +507,7 @@ function initRobots(){
     const col=RCOLORS[i%RCOLORS.length];
     const mesh=mkRoboMesh(col);
     const sec=getSector(i,n);
-    mesh.position.set(DOCK_POS.x,DOCK_POS.y+.5,DOCK_POS.z);
+    mesh.position.set(0, FLOOR_Y+3, 0);
     scene.add(mesh);
     robots.push({
       id:i, mesh, col,
@@ -516,137 +560,180 @@ function updateRobots(){
     if(r.sonarT<=0){mkSonarRing(r.pos.clone(),r.col);r.sonarT=55+Math.floor(Math.random()*35);}
 
     // ── STATE MACHINE ──────────────────────────────────────
+
+    // 1. CHARGING (On Pad)
     if(r.state==='charging'){
       chargingCount++;
-      r.battery=Math.min(100,r.battery+1.8);
+      r.battery=Math.min(100,r.battery+1.5); // Fast wireless charge
       r.chargeTimer++;
-      // Dock light pulse to this robot
-      if(r.battery>=95){
-        r.state='cleaning';
-        r.target=randInSector(r.sector);
-        r.debrisTarget=null;
-        log(`UNIT-${r.id} ⚡ fully charged — diving back in`,'ok');
-      }
-      // Stay on dock
-      const toDoc=DOCK_POS.clone().add(new THREE.Vector3((r.id%3-.5)*.8,.5,0)).sub(r.pos);
-      r.vel.lerp(toDoc.normalize().multiplyScalar(.3),.2);
-      r.battery-=.001; // minimal drain on dock
-      return;
-    }
 
-    if(r.state==='surfacing'){
-      // Rise to surface then go to dock
-      const surfTarget=new THREE.Vector3(DOCK_POS.x+(r.id%3-.5)*.8, DOCK_POS.y+.4, DOCK_POS.z);
-      const toDock=surfTarget.clone().sub(r.pos);
-      const dist=toDock.length();
-      if(dist<1.5){
-        r.state='charging';
-        log(`UNIT-${r.id} ⚡ docked — charging`,'ok');
-      } else {
-        // Rise first if underwater
-        if(r.pos.y < WATER_Y-.5){
-          r.vel.y+=.4;
-        } else {
-          r.vel.lerp(toDock.normalize().multiplyScalar(speed*1.5),.15);
-        }
-        r.battery-=.008*drain;
+      // Position lock on pad
+      // Arrange them on the pad
+      const targetPos = DOCK_POS.clone().add(new THREE.Vector3((r.id%2)*1.2 - 0.6, 0, (Math.floor(r.id/2)%2)*1.2 - 0.6));
+      r.pos.lerp(targetPos, 0.1);
+      r.mesh.rotation.set(0,0,0);
+
+      if(r.battery>=100){
+        r.state='launching';
+        log(`UNIT-${r.id} charged — launching`,'ok');
       }
-      r.pos.add(r.vel.clone().multiplyScalar(.35));
       r.mesh.position.copy(r.pos);
-      if(r.vel.length()>.05){r.mesh.rotation.y=Math.atan2(r.vel.x,r.vel.z);r.mesh.rotation.z=-Math.atan2(r.vel.y,Math.sqrt(r.vel.x**2+r.vel.z**2));}
       return;
     }
 
-    if(r.state==='returning'){
-      // Head toward dock (surface)
-      const surfPt=new THREE.Vector3(DOCK_POS.x, WATER_Y+.3, DOCK_POS.z);
-      if(r.pos.y<WATER_Y-1){
-        // Rise first
-        r.vel.y+=.5;
-        const h=new THREE.Vector3(surfPt.x-r.pos.x,0,surfPt.z-r.pos.z).normalize().multiplyScalar(speed*.5);
-        r.vel.x+=h.x; r.vel.z+=h.z;
+    // 2. LAUNCHING (Return to water)
+    if(r.state==='launching'){
+      // Drive towards pool center
+      const poolCenter = new THREE.Vector3(0, FLOOR_Y+2, 0);
+      const dir = poolCenter.clone().sub(r.pos).normalize();
+
+      // Move
+      r.pos.add(dir.multiplyScalar(speed*0.1));
+
+      // Check if over water (inside pool bounds)
+      // Pool X: -35 to 35, Z: -21 to 21
+      const safety = 2;
+      if(r.pos.x > -PW/2+safety && r.pos.x < PW/2-safety && r.pos.z > -PD/2+safety && r.pos.z < PD/2-safety){
+         // Fall
+         r.pos.y -= 0.3;
+         r.mesh.rotation.x = Math.PI/3; // Nose dive
+         if(r.pos.y < WATER_Y - 2){
+            r.state='cleaning';
+            r.target = randInSector(r.sector);
+            r.mesh.rotation.x = 0;
+            log(`UNIT-${r.id} splashed down`,'ok');
+         }
       } else {
-        const toSurf=surfPt.clone().sub(r.pos);
-        if(toSurf.length()<2){r.state='surfacing';}
-        else r.vel.lerp(toSurf.normalize().multiplyScalar(speed*1.3),.12);
+         r.pos.y = FLOOR_Y + PH + 0.2; // Stay on deck
+         r.mesh.rotation.set(0, Math.atan2(dir.x, dir.z), 0);
       }
-      r.battery-=.01*drain;
-    } else {
-      // UNDERWATER: CLEANING / SEEKING DEBRIS
-      // Sonar sweep for debris
-      if(debrisPool.length>0 && r.state!=='returning'){
+      r.mesh.position.copy(r.pos);
+      return;
+    }
+
+    // 3. DECK TRAVEL (Climbed wall, moving to pad)
+    if(r.state==='deck_travel'){
+      // Move to PAD
+      const dest = DOCK_POS.clone();
+      const dist = r.pos.distanceTo(dest);
+      if(dist < 1.0){
+        r.state='charging';
+        log(`UNIT-${r.id} docked on pad`,'ok');
+      } else {
+        const dir = dest.sub(r.pos).normalize();
+        r.pos.add(dir.multiplyScalar(speed*0.1));
+        r.mesh.rotation.set(0, Math.atan2(dir.x, dir.z), 0);
+      }
+      r.pos.y = FLOOR_Y + PH + 0.2; // Keep on deck height
+      r.mesh.position.copy(r.pos);
+      return;
+    }
+
+    // 4. CLIMBING (Wall climbing with downforce)
+    if(r.state==='climbing'){
+      // Move UP
+      r.pos.y += speed*0.08;
+
+      // Stick to wall X (Left Wall = -PW/2)
+      r.pos.x = -PW/2 + 0.5; // Offset
+
+      // Rotation: Vertical, tracks against wall
+      // Robot nose points UP (+Y). Bottom is -X.
+      // Standard: +Z is nose. +Y is up.
+      // We want +Z to point +Y (Up). +Y to point +X (Away from wall).
+      r.mesh.rotation.set(0, 0, -Math.PI/2);
+
+      // Transition to Deck
+      if(r.pos.y > FLOOR_Y + PH){
+        r.state='deck_travel';
+        r.pos.y = FLOOR_Y + PH + 0.2;
+        r.pos.x = -PW/2 - 1.0; // Pop over lip onto deck
+        log(`UNIT-${r.id} climbed deck`,'ok');
+      }
+      r.mesh.position.copy(r.pos);
+      return;
+    }
+
+    // 5. SEEKING WALL (Low Battery)
+    if(r.state==='seeking_wall'){
+      // Go to Left Wall (x = -PW/2)
+      const targetX = -PW/2 + 1.5;
+      const targetZ = Math.max(-PD/2+2, Math.min(PD/2-2, r.pos.z)); // Stay in bounds Z
+
+      const target = new THREE.Vector3(targetX, r.pos.y, targetZ);
+      const toT = target.clone().sub(r.pos);
+      const dist = toT.length();
+
+      if(dist < 1.5 || r.pos.x < -PW/2 + 2.5){
+         r.state='climbing';
+         log(`UNIT-${r.id} engaging wall climb`,'w');
+      } else {
+         r.vel.lerp(toT.normalize().multiplyScalar(speed), 0.1);
+         r.pos.add(r.vel.clone().multiplyScalar(0.4));
+         // Orientation
+         if(r.vel.length()>.05){
+            r.mesh.rotation.y=Math.atan2(r.vel.x,r.vel.z);
+            r.mesh.rotation.z=-Math.atan2(r.vel.y,Math.sqrt(r.vel.x**2+r.vel.z**2));
+         }
+      }
+      r.mesh.position.copy(r.pos);
+      return;
+    }
+
+    // 6. UNDERWATER CLEANING (Standard)
+
+    // Check Battery (Threshold 20%)
+    if(r.battery < 20 && r.state !== 'seeking_wall' && r.state !== 'climbing'){
+       r.state = 'seeking_wall';
+       r.debrisTarget = null;
+       log(`UNIT-${r.id} low battery -> RTB`,'w');
+    }
+
+    // Debris Logic
+    if(debrisPool.length>0){
         if(!r.debrisTarget || r.debrisTarget.userData.collected){
           const nd=findNearestDebris(r.pos, sonarR);
           if(nd){r.debrisTarget=nd; r.state='seeking_debris';}
           else{r.state='cleaning'; r.debrisTarget=null;}
         }
-      }
+    }
 
-      if(r.state==='seeking_debris' && r.debrisTarget && !r.debrisTarget.userData.collected){
+    if(r.state==='seeking_debris' && r.debrisTarget && !r.debrisTarget.userData.collected){
         const toD=r.debrisTarget.position.clone().sub(r.pos);
-        const dist=toD.length();
-        if(dist<1.8){
-          // COLLECT!
+        if(toD.length()<1.8){
           r.debrisTarget.userData.collected=true;
           r.debrisTarget.visible=false;
           cleanedDebris++;
           updateDebrisBadge();
-          log(`UNIT-${r.id} collected ${r.debrisTarget.userData.type}`,'ok');
           r.debrisTarget=null;
           r.state='cleaning';
           r.target=randInSector(r.sector);
         } else {
           r.vel.lerp(toD.normalize().multiplyScalar(speed*1.1),.15);
         }
-      } else {
-        // Standard flocking patrol
+    } else {
+        // Flocking / Patrol
         r.state='cleaning';
         let force=new THREE.Vector3();
-        let sep=new THREE.Vector3(),sc=0;
-        let ali=new THREE.Vector3(),ac=0;
-        let coh=new THREE.Vector3(),cc=0;
-        robots.forEach(o=>{
-          if(o.id===r.id||o.disabled)return;
-          const d=r.pos.distanceTo(o.pos);
-          if(d<sonarR*.5){
-            if(d<5){sep.add(r.pos.clone().sub(o.pos).normalize());sc++;}
-            ali.add(o.vel);ac++;
-            coh.add(o.pos);cc++;
-          }
-        });
-        if(sc)force.add(sep.divideScalar(sc).multiplyScalar(1.5));
-        if(ac)force.add(ali.divideScalar(ac).sub(r.vel).multiplyScalar(.2));
-        if(cc)force.add(coh.divideScalar(cc).sub(r.pos).multiplyScalar(.005));
-        // Seek patrol target
         if(r.target){
           const td=r.target.clone().sub(r.pos);
           if(td.length()<2){r.target=randInSector(r.sector);}
           else force.add(td.normalize().multiplyScalar(speed*.8));
         }
         r.vel.add(force);
-      }
-
-      // Floor hugging (cleaning mode stays near bottom)
-      if(r.pos.y > FLOOR_Y+2){r.vel.y-=.1;}
-      if(r.pos.y < FLOOR_Y+.5){r.vel.y+=.3;}
-
-      // Boundary
-      const pad=3;
-      if(r.pos.x<-PW/2+pad)r.vel.x+=.4; if(r.pos.x>PW/2-pad)r.vel.x-=.4;
-      if(r.pos.z<-PD/2+pad)r.vel.z+=.4; if(r.pos.z>PD/2-pad)r.vel.z-=.4;
-      if(r.pos.y>WATER_Y-.3)r.vel.y-=.5;
-
-      r.battery-=(.006+Math.random()*.003)*drain;
-
-      // LOW BATTERY → surface to dock
-      if(r.battery<18 && r.state!=='returning'){
-        r.state='returning';
-        r.debrisTarget=null;
-        log(`UNIT-${r.id} 🔋 low battery → surfacing to dock`,'w');
-      }
     }
 
-    // Speed limit
+    // Floor Hugging
+    if(r.pos.y > FLOOR_Y+3){r.vel.y-=.1;}
+    if(r.pos.y < FLOOR_Y+.5){r.vel.y+=.3;}
+
+    const pad=3;
+    if(r.pos.x<-PW/2+pad)r.vel.x+=.4; if(r.pos.x>PW/2-pad)r.vel.x-=.4;
+    if(r.pos.z<-PD/2+pad)r.vel.z+=.4; if(r.pos.z>PD/2-pad)r.vel.z-=.4;
+
+    r.battery-=(.006+Math.random()*.003)*drain;
+
+    // Update Pos
     if(r.vel.length()>speed*2.5)r.vel.normalize().multiplyScalar(speed*2.5);
     r.pos.add(r.vel.clone().multiplyScalar(.38));
     r.mesh.position.copy(r.pos);
@@ -666,12 +753,13 @@ function updateRobots(){
         scene.add(l);r.trails.push(l);
       }
     }
-  });
+
+  }); // end forEach
 
   document.getElementById('tChg').textContent=chargingCount;
-  const dockSt=chargingCount>0?`${chargingCount} CHARGING`:robots.filter(r=>r.state==='surfacing'||r.state==='returning').length>0?'INCOMING':'READY';
+  const dockSt=chargingCount>0?`${chargingCount} CHARGING`:robots.some(r=>r.state==='seeking_wall'||r.state==='climbing')?'CLIMBING':'READY';
   document.getElementById('dockStatus').textContent=dockSt;
-  document.getElementById('dockStatus').style.color=chargingCount>0?'var(--green)':robots.some(r=>r.state==='surfacing'||r.state==='returning')?'var(--amber)':'var(--cyan)';
+  document.getElementById('dockStatus').style.color=chargingCount>0?'var(--green)':'var(--cyan)';
 }
 
 // ══════════════════════════════════════════════════════════
