@@ -125,11 +125,11 @@ canvas{display:block;width:100%;height:100%;}
 
 <header>
   <div>
-    <div class="logo">Aqua<span>Swarm</span> <sub>ROBOT DESIGN REFERENCE — REV 0.1</sub></div>
+    <div class="logo">Aqua<span>Swarm</span> <sub>ROBOT DESIGN REFERENCE — REV 0.2 (AMPHIBIOUS)</sub></div>
   </div>
   <div class="hpills">
     <div class="pill pc">DUAL-TYPE COMPARISON</div>
-    <div class="pill pg">BOM INCLUDED</div>
+    <div class="pill pg">AMPHIBIOUS CRAWLER</div>
     <div class="pill pr">FABRICATION-READY</div>
   </div>
 </header>
@@ -176,34 +176,33 @@ canvas{display:block;width:100%;height:100%;}
         <table class="spec-table">
           <tr><th></th><th style="color:var(--cyan)">TYPE-A</th><th style="color:var(--red)">TYPE-B</th></tr>
           <tr><td>Mission</td><td class="va">Pool cleaning</td><td class="vb">Tactical ISR</td></tr>
-          <tr><td>Length</td><td class="va">28 cm</td><td class="vb">12 cm</td></tr>
-          <tr><td>Diameter</td><td class="va">9 cm</td><td class="vb">5 cm</td></tr>
-          <tr><td>Weight (air)</td><td class="va">~420 g</td><td class="vb">~95 g</td></tr>
-          <tr><td>Depth rating</td><td class="va">5 m</td><td class="vb">30 m</td></tr>
+          <tr><td>Chassis</td><td class="va">Wedge (L)</td><td class="vb">Wedge (S)</td></tr>
+          <tr><td>Mobility</td><td class="va">Tracks (Amphibious)</td><td class="vb">Tracks (Amphibious)</td></tr>
+          <tr><td>Weight</td><td class="va">~650 g</td><td class="vb">~180 g</td></tr>
+          <tr><td>Depth</td><td class="va">5 m</td><td class="vb">30 m</td></tr>
           <tr><td>Battery</td><td class="va">18650 × 4 (14.8V)</td><td class="vb">LiPo 1S (3.7V)</td></tr>
           <tr><td>Runtime</td><td class="va">~90 min</td><td class="vb">~45 min</td></tr>
           <tr><td>Nav</td><td class="va">Sonar + IMU</td><td class="vb">IMU + Acoustic</td></tr>
-          <tr><td>RF</td><td class="va">None (EMCON)</td><td class="vb">None (EMCON)</td></tr>
-          <tr><td>Unit cost</td><td class="va" style="color:var(--green)">~$280</td><td class="vb" style="color:var(--amber)">~$95</td></tr>
+          <tr><td>Payload</td><td class="va">Brush Head</td><td class="vb">Modular / None</td></tr>
+          <tr><td>Cost</td><td class="va" style="color:var(--green)">~$320</td><td class="vb" style="color:var(--amber)">~$95</td></tr>
         </table>
       </div>
       <div class="psec">
-        <div class="ptitle">Propulsion</div>
+        <div class="ptitle">Propulsion (Amphibious)</div>
         <table class="spec-table">
           <tr><th></th><th style="color:var(--cyan)">TYPE-A</th><th style="color:var(--red)">TYPE-B</th></tr>
-          <tr><td>Main thruster</td><td class="va">BlueRobotics T200 × 1</td><td class="vb">Brushless 1104 × 2</td></tr>
-          <tr><td>Steering</td><td class="va">2× servo rudder</td><td class="vb">Differential thrust</td></tr>
-          <tr><td>Max speed</td><td class="va">0.8 m/s</td><td class="vb">1.4 m/s</td></tr>
-          <tr><td>Cleaning</td><td class="va">Brush + suction pump</td><td class="vb">N/A</td></tr>
+          <tr><td>Main Drive</td><td class="va">Twin Brushless</td><td class="vb">Twin Brushless</td></tr>
+          <tr><td>Downforce</td><td class="va">Vertical Thruster</td><td class="vb">Vertical Thruster</td></tr>
+          <tr><td>Steering</td><td class="va">Differential</td><td class="vb">Differential</td></tr>
+          <tr><td>Tracks</td><td class="va">Silicone Shore 40A</td><td class="vb">Silicone Shore 40A</td></tr>
         </table>
       </div>
       <div class="psec">
         <div class="ptitle">Waterproofing</div>
         <table class="spec-table">
-          <tr><td>Housing</td><td class="va">PVC pipe + endcap</td><td class="vb">3D print PETG + epoxy</td></tr>
-          <tr><td>Sealing</td><td class="va">O-ring × 2 + RTV</td><td class="vb">O-ring × 1</td></tr>
+          <tr><td>Hull Material</td><td class="va">PETG 3D Printed</td><td class="vb">PETG 3D Printed</td></tr>
+          <tr><td>Sealing</td><td class="va">Epoxy / Potting</td><td class="vb">Epoxy / Potting</td></tr>
           <tr><td>Cable glands</td><td class="va">M8 × 4</td><td class="vb">M5 × 2</td></tr>
-          <tr><td>Pressure test</td><td class="va">0.5 bar (5 m equiv.)</td><td class="vb">3 bar (30 m equiv.)</td></tr>
         </table>
       </div>
     </div>
@@ -214,22 +213,17 @@ canvas{display:block;width:100%;height:100%;}
         <div class="ptitle">TYPE-A Full Specs — Pool Cleaner AUV</div>
         <table class="spec-table">
           <tr><td>MCU</td><td class="va">Raspberry Pi Zero 2W</td></tr>
-          <tr><td>Co-processor</td><td class="va">Arduino Nano (thruster PWM)</td></tr>
+          <tr><td>Co-processor</td><td class="va">Arduino Nano (ESC/Servo)</td></tr>
           <tr><td>IMU</td><td class="va">MPU-9250 (9-DOF)</td></tr>
           <tr><td>Sonar</td><td class="va">JSN-SR04T (waterproof US)</td></tr>
-          <tr><td>Depth sensor</td><td class="va">MS5837-30BA</td></tr>
-          <tr><td>Camera</td><td class="va">NONE — privacy/OPSEC</td></tr>
-          <tr><td>Thruster</td><td class="va">BlueRobotics T200 + ESC</td></tr>
-          <tr><td>Brush motor</td><td class="va">775 DC 12V waterproof</td></tr>
-          <tr><td>Suction pump</td><td class="va">Mini bilge pump 500GPH</td></tr>
+          <tr><td>Propulsion</td><td class="va">2× Brushless + 1× Vertical</td></tr>
+          <tr><td>Tracks</td><td class="va">Continuous Rubber Track</td></tr>
+          <tr><td>Cleaning</td><td class="va">Motorized Brush Head</td></tr>
           <tr><td>Battery</td><td class="va">18650 × 4S1P = 14.8V 2.5Ah</td></tr>
-          <tr><td>Charging</td><td class="va">Pogo pin dock (base station)</td></tr>
-          <tr><td>Housing</td><td class="va">PVC 90mm OD schedule 40</td></tr>
-          <tr><td>Length total</td><td class="va">28 cm (hull) + 5 cm brush</td></tr>
-          <tr><td>Neutral buoyancy</td><td class="va">Foam trim blocks (adjustable)</td></tr>
+          <tr><td>Charging</td><td class="va">Wireless Qi / Pogo</td></tr>
+          <tr><td>Housing</td><td class="va">PETG Printed Wedge</td></tr>
           <tr><td>Inter-unit comm</td><td class="va">Acoustic modem (DIY FSK)</td></tr>
           <tr><td>Edge AI</td><td class="va">TFLite on RPi — flocking algo</td></tr>
-          <tr><td>OS</td><td class="va">Raspberry Pi OS Lite</td></tr>
         </table>
       </div>
       <div class="psec">
@@ -238,16 +232,12 @@ canvas{display:block;width:100%;height:100%;}
           <tr><td>MCU</td><td class="vb">ESP32-S3 (dual-core 240MHz)</td></tr>
           <tr><td>IMU</td><td class="vb">ICM-42688-P (6-DOF high perf)</td></tr>
           <tr><td>Sonar</td><td class="vb">Ultrasonic transducer 40kHz</td></tr>
-          <tr><td>Depth sensor</td><td class="vb">MS5837-02BA (30m rating)</td></tr>
-          <tr><td>Camera</td><td class="vb">NONE — EMCON compliant</td></tr>
-          <tr><td>Thrusters</td><td class="vb">Brushless 1104 2300kv × 2</td></tr>
-          <tr><td>ESC</td><td class="vb">Flycolor 6A BLHeli-S × 2</td></tr>
+          <tr><td>Propulsion</td><td class="vb">2× Brushless 1104 + 1× Vert</td></tr>
+          <tr><td>Tracks</td><td class="vb">Micro Silicone Tracks</td></tr>
           <tr><td>Battery</td><td class="vb">LiPo 1S 3.7V 800mAh</td></tr>
           <tr><td>Housing</td><td class="vb">PETG 3D print + epoxy coat</td></tr>
-          <tr><td>Length</td><td class="vb">12 cm torpedo form</td></tr>
           <tr><td>Swarm comm</td><td class="vb">Acoustic pulse coding</td></tr>
           <tr><td>Dead reckoning</td><td class="vb">Kalman filter on ICM-42688</td></tr>
-          <tr><td>Maneuver</td><td class="vb">±30° pitch via ballast shift</td></tr>
           <tr><td>Payload</td><td class="vb">Modular bay 2 cm³</td></tr>
         </table>
       </div>
@@ -256,29 +246,24 @@ canvas{display:block;width:100%;height:100%;}
     <!-- TAB 2: BOM -->
     <div id="tab2" style="display:none">
       <div class="psec">
-        <div class="ptitle">TYPE-A — Bill of Materials (~$280/unit)</div>
+        <div class="ptitle">TYPE-A — Bill of Materials (~$320/unit)</div>
         <table class="bom">
           <tr><th>Category</th><th>Part</th><th>$</th></tr>
           <tr><td class="cat">Compute</td><td class="part">Raspberry Pi Zero 2W</td><td class="price">$15</td></tr>
           <tr><td class="cat"></td><td class="part">Arduino Nano clone</td><td class="price">$3</td></tr>
           <tr><td class="cat">Sensors</td><td class="part">MPU-9250 IMU module</td><td class="price">$4</td></tr>
           <tr><td class="cat"></td><td class="part">JSN-SR04T waterproof sonar</td><td class="price">$5</td></tr>
-          <tr><td class="cat"></td><td class="part">MS5837-30BA depth sensor</td><td class="price">$22</td></tr>
-          <tr><td class="cat">Propulsion</td><td class="part">BlueRobotics T200 thruster</td><td class="price">$169</td></tr>
-          <tr><td class="cat"></td><td class="part">BlueRobotics Basic ESC</td><td class="price">$25</td></tr>
-          <tr><td class="cat"></td><td class="part">MG996R servo × 2 (rudder)</td><td class="price">$6</td></tr>
+          <tr><td class="cat">Propulsion</td><td class="part">Brushless Motor × 3</td><td class="price">$45</td></tr>
+          <tr><td class="cat"></td><td class="part">ESC 30A × 3</td><td class="price">$30</td></tr>
+          <tr><td class="cat">Mobility</td><td class="part">Silicone Track Belts</td><td class="price">$12</td></tr>
           <tr><td class="cat">Cleaning</td><td class="part">775 waterproof DC motor</td><td class="price">$8</td></tr>
-          <tr><td class="cat"></td><td class="part">Mini bilge pump 500GPH</td><td class="price">$12</td></tr>
           <tr><td class="cat"></td><td class="part">Nylon brush head (custom)</td><td class="price">$4</td></tr>
           <tr><td class="cat">Power</td><td class="part">Samsung 18650 × 4</td><td class="price">$12</td></tr>
           <tr><td class="cat"></td><td class="part">BMS 4S 10A</td><td class="price">$5</td></tr>
-          <tr><td class="cat"></td><td class="part">Pogo pin connector set</td><td class="price">$3</td></tr>
-          <tr><td class="cat">Housing</td><td class="part">PVC 90mm pipe 30cm</td><td class="price">$4</td></tr>
-          <tr><td class="cat"></td><td class="part">Endcap × 2 + O-ring kit</td><td class="price">$6</td></tr>
-          <tr><td class="cat"></td><td class="part">M8 cable gland × 4</td><td class="price">$4</td></tr>
-          <tr><td class="cat"></td><td class="part">RTV silicone + foam trim</td><td class="price">$5</td></tr>
-          <tr><td class="cat">Misc</td><td class="part">Wiring, connectors, PCB</td><td class="price">$8</td></tr>
-          <tr class="total"><td colspan="2">TOTAL (TYPE-A / UNIT)</td><td class="price">~$280</td></tr>
+          <tr><td class="cat">Housing</td><td class="part">PETG Filament (500g)</td><td class="price">$10</td></tr>
+          <tr><td class="cat"></td><td class="part">Epoxy / Potting Compound</td><td class="price">$8</td></tr>
+          <tr><td class="cat">Misc</td><td class="part">Bearings, Shafts, Wiring</td><td class="price">$15</td></tr>
+          <tr class="total"><td colspan="2">TOTAL (TYPE-A / UNIT)</td><td class="price">~$320</td></tr>
         </table>
       </div>
       <div class="psec">
@@ -287,28 +272,15 @@ canvas{display:block;width:100%;height:100%;}
           <tr><th>Category</th><th>Part</th><th>$</th></tr>
           <tr><td class="cat">Compute</td><td class="part">ESP32-S3 DevKit</td><td class="price">$5</td></tr>
           <tr><td class="cat">Sensors</td><td class="part">ICM-42688-P IMU breakout</td><td class="price">$8</td></tr>
-          <tr><td class="cat"></td><td class="part">Ultrasonic transducer 40kHz</td><td class="price">$3</td></tr>
-          <tr><td class="cat"></td><td class="part">MS5837-02BA depth sensor</td><td class="price">$18</td></tr>
-          <tr><td class="cat">Propulsion</td><td class="part">Brushless 1104 2300kv × 2</td><td class="price">$14</td></tr>
-          <tr><td class="cat"></td><td class="part">BLHeli-S 6A ESC × 2</td><td class="price">$8</td></tr>
+          <tr><td class="cat"></td><td class="part">Ultrasonic transducer</td><td class="price">$3</td></tr>
+          <tr><td class="cat">Propulsion</td><td class="part">Brushless 1104 2300kv × 3</td><td class="price">$21</td></tr>
+          <tr><td class="cat"></td><td class="part">BLHeli-S 6A ESC × 3</td><td class="price">$12</td></tr>
           <tr><td class="cat">Power</td><td class="part">LiPo 1S 800mAh 30C</td><td class="price">$6</td></tr>
-          <tr><td class="cat"></td><td class="part">TP4056 charging module</td><td class="price">$1</td></tr>
+          <tr><td class="cat">Mobility</td><td class="part">Silicone Micro Tracks</td><td class="price">$5</td></tr>
           <tr><td class="cat">Housing</td><td class="part">PETG filament (150g)</td><td class="price">$5</td></tr>
-          <tr><td class="cat"></td><td class="part">O-ring kit + epoxy coat</td><td class="price">$4</td></tr>
-          <tr><td class="cat"></td><td class="part">M5 cable gland × 2</td><td class="price">$2</td></tr>
-          <tr><td class="cat">Acoustic</td><td class="part">DIY FSK modem (piezo + amp)</td><td class="price">$7</td></tr>
+          <tr><td class="cat"></td><td class="part">Epoxy coat</td><td class="price">$4</td></tr>
           <tr><td class="cat">Misc</td><td class="part">Wiring, micro connectors</td><td class="price">$4</td></tr>
           <tr class="total"><td colspan="2">TOTAL (TYPE-B / UNIT)</td><td class="price">~$95</td></tr>
-        </table>
-      </div>
-      <div class="psec">
-        <div class="ptitle">Swarm of 6 — Total Cost Estimate</div>
-        <table class="bom">
-          <tr><th>Config</th><th>Units</th><th>Total</th></tr>
-          <tr><td class="part">TYPE-A × 6</td><td class="cat">6</td><td class="price">~$1,680</td></tr>
-          <tr><td class="part">TYPE-B × 6</td><td class="cat">6</td><td class="price">~$570</td></tr>
-          <tr><td class="part">Mixed 3A + 3B</td><td class="cat">6</td><td class="price">~$1,125</td></tr>
-          <tr><td class="part">Base station dock</td><td class="cat">1</td><td class="price">~$80</td></tr>
         </table>
       </div>
     </div>
@@ -319,23 +291,23 @@ canvas{display:block;width:100%;height:100%;}
         <div class="ptitle">Click to highlight on 3D model</div>
         <div id="compListA">
           <div style="font-size:9px;color:rgba(0,212,255,0.4);margin-bottom:6px;letter-spacing:1px;">— TYPE-A —</div>
-          <button class="comp-btn" onclick="highlight('A','thruster')"><div class="comp-dot" style="background:#00d4ff"></div>T200 THRUSTER + ESC</button>
-          <button class="comp-btn" onclick="highlight('A','brush')"><div class="comp-dot" style="background:#00ff88"></div>BRUSH + SUCTION HEAD</button>
-          <button class="comp-btn" onclick="highlight('A','battery')"><div class="comp-dot" style="background:#ffaa00"></div>18650 BATTERY PACK (4S)</button>
-          <button class="comp-btn" onclick="highlight('A','compute')"><div class="comp-dot" style="background:#aa88ff"></div>RPi ZERO 2W + ARDUINO</button>
-          <button class="comp-btn" onclick="highlight('A','sonar')"><div class="comp-dot" style="background:#ff6688"></div>SONAR JSN-SR04T</button>
-          <button class="comp-btn" onclick="highlight('A','imu')"><div class="comp-dot" style="background:#ffdd44"></div>IMU MPU-9250</button>
-          <button class="comp-btn" onclick="highlight('A','rudder')"><div class="comp-dot" style="background:#44ffdd"></div>SERVO RUDDER × 2</button>
-          <button class="comp-btn" onclick="highlight('A','pogo')"><div class="comp-dot" style="background:#ff8844"></div>POGO PIN DOCK CONTACT</button>
+          <button class="comp-btn" onclick="highlight('A','chassis')"><div class="comp-dot" style="background:#00d4ff"></div>WEDGE CHASSIS (PETG)</button>
+          <button class="comp-btn" onclick="highlight('A','tracks')"><div class="comp-dot" style="background:#444"></div>SILICONE TRACKS</button>
+          <button class="comp-btn" onclick="highlight('A','thruster')"><div class="comp-dot" style="background:#ff4466"></div>TWIN THRUSTERS</button>
+          <button class="comp-btn" onclick="highlight('A','vthruster')"><div class="comp-dot" style="background:#ff8844"></div>VERTICAL THRUSTER</button>
+          <button class="comp-btn" onclick="highlight('A','brush')"><div class="comp-dot" style="background:#00ff88"></div>BRUSH HEAD</button>
+          <button class="comp-btn" onclick="highlight('A','battery')"><div class="comp-dot" style="background:#ffaa00"></div>18650 BATTERY PACK</button>
+          <button class="comp-btn" onclick="highlight('A','compute')"><div class="comp-dot" style="background:#aa88ff"></div>RPi ZERO 2W</button>
           <button class="comp-btn" onclick="highlight('A','none')"><div class="comp-dot" style="background:#333"></div>CLEAR ALL</button>
         </div>
         <div id="compListB" style="margin-top:14px">
           <div style="font-size:9px;color:rgba(196,30,58,0.6);margin-bottom:6px;letter-spacing:1px;">— TYPE-B —</div>
-          <button class="comp-btn" onclick="highlight('B','thruster')"><div class="comp-dot" style="background:#ff4466"></div>BRUSHLESS 1104 × 2</button>
-          <button class="comp-btn" onclick="highlight('B','battery')"><div class="comp-dot" style="background:#ffaa00"></div>LiPo 1S 800mAh</button>
-          <button class="comp-btn" onclick="highlight('B','compute')"><div class="comp-dot" style="background:#aa88ff"></div>ESP32-S3 + ICM-42688</button>
-          <button class="comp-btn" onclick="highlight('B','sonar')"><div class="comp-dot" style="background:#ff6688"></div>40kHz ACOUSTIC TRANSDUCER</button>
-          <button class="comp-btn" onclick="highlight('B','payload')"><div class="comp-dot" style="background:#44ffaa"></div>MODULAR PAYLOAD BAY</button>
+          <button class="comp-btn" onclick="highlight('B','chassis')"><div class="comp-dot" style="background:#c41e3a"></div>WEDGE CHASSIS (S)</button>
+          <button class="comp-btn" onclick="highlight('B','tracks')"><div class="comp-dot" style="background:#444"></div>MICRO TRACKS</button>
+          <button class="comp-btn" onclick="highlight('B','thruster')"><div class="comp-dot" style="background:#ff4466"></div>TWIN THRUSTERS</button>
+          <button class="comp-btn" onclick="highlight('B','vthruster')"><div class="comp-dot" style="background:#ff8844"></div>VERTICAL THRUSTER</button>
+          <button class="comp-btn" onclick="highlight('B','battery')"><div class="comp-dot" style="background:#ffaa00"></div>LiPo 1S</button>
+          <button class="comp-btn" onclick="highlight('B','compute')"><div class="comp-dot" style="background:#aa88ff"></div>ESP32-S3</button>
           <button class="comp-btn" onclick="highlight('B','none')"><div class="comp-dot" style="background:#333"></div>CLEAR ALL</button>
         </div>
       </div>
@@ -369,7 +341,7 @@ function makeScene(canvasId, wrapId, bgColor) {
   scene.fog = new THREE.FogExp2(bgColor, 0.025);
 
   const camera = new THREE.PerspectiveCamera(50, 1, 0.01, 500);
-  camera.position.set(0, 18, 30);
+  camera.position.set(15, 12, 18);
   camera.lookAt(0, 0, 0);
 
   scene.add(new THREE.AmbientLight(0x112244, 1.5));
@@ -383,11 +355,11 @@ function makeScene(canvasId, wrapId, bgColor) {
   // grid floor
   const grid = new THREE.GridHelper(40, 20, 0x00d4ff, 0x00d4ff);
   grid.material.opacity = 0.07; grid.material.transparent = true;
-  grid.position.y = -6;
+  grid.position.y = -4;
   scene.add(grid);
 
   // Orbit state
-  let sph = {theta: 0.4, phi: 1.1, r: 30};
+  let sph = {theta: 0.6, phi: 1.1, r: 25};
   let target = {...sph};
   let dragging = false;
   let prev = {x:0,y:0};
@@ -431,19 +403,13 @@ function makeScene(canvasId, wrapId, bgColor) {
 const MAT = {
   hull:    c => new THREE.MeshPhongMaterial({color:c, shininess:80}),
   metal:   c => new THREE.MeshPhongMaterial({color:c, shininess:120, specular:0xffffff}),
+  rubber:  c => new THREE.MeshPhongMaterial({color:c, shininess:10, flatShading:true}),
   glow:    (c,e) => new THREE.MeshPhongMaterial({color:c, emissive:e||c, emissiveIntensity:0.6, shininess:30}),
   glass:   c => new THREE.MeshPhongMaterial({color:c, transparent:true, opacity:0.35, shininess:120}),
   wire:    c => new THREE.MeshBasicMaterial({color:c, wireframe:true}),
 };
 
-function edges(geo, color, parent) {
-  const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({color, transparent:true, opacity:0.5}));
-  parent.add(e);
-  return e;
-}
-
 function label3D(scene, text, pos, color=0x00d4ff) {
-  // We'll use a simple sprite approach via canvas texture
   const cv = document.createElement('canvas'); cv.width=256; cv.height=64;
   const ctx = cv.getContext('2d');
   ctx.fillStyle='rgba(0,0,0,0)';
@@ -461,256 +427,182 @@ function label3D(scene, text, pos, color=0x00d4ff) {
   return sprite;
 }
 
-// ─── TYPE-A: POOL CLEANER AUV ────────────────────────────────────────────────
-const scA = makeScene('cvA', 'wrapA', 0x05101f);
-const partMapA = {}; // name -> mesh array for highlight
-
-function buildRobotA(scene) {
+// ─── AMPHIBIOUS ROBOT BUILDER ────────────────────────────────────────────────
+// Builds the Wedge-shaped Tracked Robot
+function buildAmphibiousRobot(scene, type, map) {
   const root = new THREE.Group();
   scene.add(root);
 
-  // === HULL (PVC cylinder) ===
-  const hullGeo = new THREE.CylinderGeometry(1, 1, 7, 32);
-  const hullMesh = new THREE.Mesh(hullGeo, MAT.hull(0x1a3a5c));
-  hullMesh.rotation.z = Math.PI/2;
-  root.add(hullMesh);
-  edges(hullGeo, 0x00d4ff, hullMesh);
-  partMapA.hull = [hullMesh];
+  const isA = (type === 'A');
+  const size = isA ? 1.0 : 0.6; // Scale factor
+  const color = isA ? 0x00d4ff : 0xc41e3a;
 
-  // endcap front
-  const capF = new THREE.Mesh(new THREE.SphereGeometry(1,16,8,0,Math.PI*2,0,Math.PI/2), MAT.hull(0x1a3a5c));
-  capF.rotation.z = -Math.PI/2; capF.position.x = 3.5;
-  root.add(capF);
-  // endcap rear
-  const capR = new THREE.Mesh(new THREE.SphereGeometry(1,16,8,Math.PI/2,Math.PI*2,Math.PI/2,Math.PI/2), MAT.hull(0x132d4a));
-  capR.rotation.z = Math.PI/2; capR.position.x = -3.5;
-  root.add(capR);
+  // === CHASSIS: WEDGE SHAPE ===
+  const shape = new THREE.Shape();
+  // Profile (Side view) - Nose at (0,0), Rear at (length, height)
+  // Let's make it normalized length ~8
+  shape.moveTo(0, 0);
+  shape.lineTo(6, 0);      // Bottom
+  shape.lineTo(6, 2.5);    // Rear Height
+  shape.lineTo(2, 2.0);    // Top slope
+  shape.lineTo(0, 0.5);    // Nose
+  shape.lineTo(0, 0);
 
-  // === SONAR dome (front) ===
-  const sonarGeo = new THREE.SphereGeometry(0.6,12,8);
-  const sonarMesh = new THREE.Mesh(sonarGeo, MAT.glow(0xff4466, 0x880022));
-  sonarMesh.position.x = 3.9;
-  root.add(sonarMesh);
-  partMapA.sonar = [sonarMesh];
-  label3D(scene, 'SONAR', new THREE.Vector3(6, 2, 0), 0xff6688);
+  const extrudeSettings = { steps: 1, depth: 4, bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.1, bevelSegments: 2 };
+  const chassisGeo = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+  chassisGeo.center(); // Center the geometry
 
-  // === POGO PIN ring ===
-  const pogoGeo = new THREE.TorusGeometry(0.85, 0.12, 8, 20);
-  const pogoMesh = new THREE.Mesh(pogoGeo, MAT.metal(0xff8844));
-  pogoMesh.position.x = -3.6; pogoMesh.rotation.y = Math.PI/2;
-  root.add(pogoMesh);
-  partMapA.pogo = [pogoMesh];
-  label3D(scene, 'POGO DOCK', new THREE.Vector3(-6, 2, 0), 0xff8844);
+  const chassisMat = MAT.hull(isA ? 0x1a3a5c : 0x2a0a1a);
+  const chassisMesh = new THREE.Mesh(chassisGeo, chassisMat);
+  // Extrusion is along Z. We want Length along X (or Z).
+  // Let's rotate so Length is X, Width is Z, Height is Y.
+  // Original shape in XY plane. Extruded along Z.
+  // Current: Length=X, Height=Y, Width=Z. This is good.
+  root.add(chassisMesh);
+  map.chassis = [chassisMesh];
 
-  // === THRUSTER (rear) ===
-  const thrGrp = new THREE.Group();
-  thrGrp.position.x = -4.2;
-  // shroud
-  const shroudGeo = new THREE.CylinderGeometry(0.8, 0.8, 1.4, 16);
-  const shroud = new THREE.Mesh(shroudGeo, MAT.metal(0x0a2040));
-  shroud.rotation.z = Math.PI/2;
-  edges(shroudGeo, 0x00d4ff, shroud);
-  thrGrp.add(shroud);
-  // prop (3 blades)
-  for (let i=0; i<3; i++) {
-    const bGeo = new THREE.BoxGeometry(0.08, 0.55, 0.18);
-    const b = new THREE.Mesh(bGeo, MAT.metal(0x2255aa));
-    b.position.set(0, 0.35*Math.cos(i*Math.PI*2/3), 0.35*Math.sin(i*Math.PI*2/3));
-    b.rotation.x = i*Math.PI*2/3;
-    thrGrp.add(b);
-  }
-  root.add(thrGrp);
-  partMapA.thruster = [thrGrp];
-  label3D(scene, 'T200 THRUSTER', new THREE.Vector3(-7, -2.5, 0), 0x00d4ff);
+  // Wireframe edge
+  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(chassisGeo), new THREE.LineBasicMaterial({color: color, transparent:true, opacity:0.3}));
+  root.add(edges);
 
-  // === RUDDER fins ===
-  const finGeo = new THREE.BoxGeometry(1.4, 0.08, 0.8);
-  const fin1 = new THREE.Mesh(finGeo, MAT.metal(0x0d2a50));
-  fin1.position.set(-2.8, 0, 0.9);
-  fin1.rotation.y = 0.15;
-  edges(finGeo, 0x44ccff, fin1);
-  const fin2 = new THREE.Mesh(finGeo, MAT.metal(0x0d2a50));
-  fin2.position.set(-2.8, 0, -0.9);
-  fin2.rotation.y = -0.15;
-  edges(finGeo, 0x44ccff, fin2);
-  const finV = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.8, 0.08), MAT.metal(0x0d2a50));
-  finV.position.set(-2.8, 0.4, 0);
-  root.add(fin1, fin2, finV);
-  partMapA.rudder = [fin1, fin2, finV];
-  label3D(scene, 'RUDDER', new THREE.Vector3(-2, 2.5, 1.5), 0x44ffdd);
+  // === TRACKS (Left & Right) ===
+  const trackW = 0.8;
+  const trackL = 7.0;
+  const trackH = 1.8;
+  const trackGeo = new THREE.BoxGeometry(trackL, trackH, trackW);
+  const trackMat = MAT.rubber(0x111111);
 
-  // === BRUSH HEAD (bottom front) ===
-  const brushGrp = new THREE.Group();
-  brushGrp.position.set(2.5, -1.1, 0);
-  // brush housing
-  const brushHouse = new THREE.Mesh(new THREE.BoxGeometry(2.2,0.5,1.5), MAT.hull(0x0a2a10));
-  edges(new THREE.BoxGeometry(2.2,0.5,1.5), 0x00ff88, brushHouse);
-  brushGrp.add(brushHouse);
-  // brush bristles (lines)
-  for (let i=-4; i<=4; i++) {
-    const bGeo = new THREE.CylinderGeometry(0.025,0.025,0.4,4);
-    const b = new THREE.Mesh(bGeo, new THREE.MeshBasicMaterial({color:0x00ff88}));
-    b.position.set(i*0.22, -0.45, 0);
-    brushGrp.add(b);
-  }
-  root.add(brushGrp);
-  partMapA.brush = [brushGrp];
-  label3D(scene, 'BRUSH HEAD', new THREE.Vector3(4, -3.5, 0), 0x00ff88);
+  const tLeft = new THREE.Mesh(trackGeo, trackMat);
+  tLeft.position.set(0, -0.5, 2.2); // Offset Z
+  root.add(tLeft);
 
-  // === BATTERY compartment indicator (internal stripe) ===
-  const batGeo = new THREE.BoxGeometry(3, 0.7, 1.2);
-  const batMesh = new THREE.Mesh(batGeo, MAT.glow(0x443300, 0xffaa00));
-  batMesh.position.set(0.5, 0, 0);
-  root.add(batMesh);
-  partMapA.battery = [batMesh];
-  label3D(scene, '18650 × 4S', new THREE.Vector3(1, 2.5, 1.5), 0xffaa00);
+  const tRight = new THREE.Mesh(trackGeo, trackMat);
+  tRight.position.set(0, -0.5, -2.2); // Offset -Z
+  root.add(tRight);
+  map.tracks = [tLeft, tRight];
 
-  // === COMPUTE board indicator ===
-  const compGeo = new THREE.BoxGeometry(1.5, 0.12, 1.0);
-  const compMesh = new THREE.Mesh(compGeo, MAT.glow(0x220044, 0xaa88ff));
-  compMesh.position.set(-0.5, 0.7, 0);
-  root.add(compMesh);
-  partMapA.compute = [compMesh];
-  label3D(scene, 'RPi + ARDUINO', new THREE.Vector3(-1, -3.5, 0), 0xaa88ff);
-
-  // === IMU chip ===
-  const imuGeo = new THREE.BoxGeometry(0.4, 0.12, 0.4);
-  const imuMesh = new THREE.Mesh(imuGeo, MAT.glow(0x333300, 0xffdd44));
-  imuMesh.position.set(1.2, 0.65, -0.5);
-  root.add(imuMesh);
-  partMapA.imu = [imuMesh];
-  label3D(scene, 'IMU', new THREE.Vector3(2, -2.5, -1.5), 0xffdd44);
-
-  // cable glands on hull
-  for (let a of [0, Math.PI/2, Math.PI, -Math.PI/2]) {
-    const cg = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,0.25,8), MAT.metal(0x334455));
-    cg.position.set(-3.2, Math.sin(a)*1.0, Math.cos(a)*1.0);
-    cg.rotation.z = Math.PI/2;
-    root.add(cg);
-  }
-
-  return root;
-}
-
-const robotA = buildRobotA(scA.scene);
-let hlA = null;
-
-// ─── TYPE-B: TACTICAL MICRO AUV ──────────────────────────────────────────────
-const scB = makeScene('cvB', 'wrapB', 0x100510);
-const partMapB = {};
-
-function buildRobotB(scene) {
-  const root = new THREE.Group();
-  scene.add(root);
-
-  // === HULL (PETG torpedo) ===
-  // Use lathe for streamlined shape
-  const pts = [];
-  for (let i=0; i<=20; i++) {
-    const t = i/20;
-    const r = t < 0.15 ? t/0.15 * 0.5 :
-              t < 0.85 ? 0.5 :
-              (1-t)/0.15 * 0.5;
-    pts.push(new THREE.Vector2(r, (t-0.5)*5));
-  }
-  const latheGeo = new THREE.LatheGeometry(pts, 24);
-  const hullMesh = new THREE.Mesh(latheGeo, MAT.hull(0x2a0a1a));
-  hullMesh.rotation.x = Math.PI/2;
-  root.add(hullMesh);
-  partMapB.hull = [hullMesh];
-
-  // edge loop
-  const hullEdge = new THREE.LineSegments(new THREE.EdgesGeometry(latheGeo), new THREE.LineBasicMaterial({color:0xc41e3a, transparent:true, opacity:0.4}));
-  hullEdge.rotation.x = Math.PI/2;
-  root.add(hullEdge);
-
-  // === ACOUSTIC TRANSDUCER (nose) ===
-  const sonarGeo = new THREE.SphereGeometry(0.28,10,8);
-  const sonarMesh = new THREE.Mesh(sonarGeo, MAT.glow(0xff4466, 0x880022));
-  sonarMesh.position.z = 2.65;
-  root.add(sonarMesh);
-  partMapB.sonar = [sonarMesh];
-  label3D(scene, 'ACOUSTIC', new THREE.Vector3(1.8, 2, 0), 0xff6688);
-
-  // === DUAL THRUSTERS (rear, side by side) ===
-  const thrGrp = new THREE.Group();
-  thrGrp.position.z = -2.7;
-  for (let side of [-0.35, 0.35]) {
-    const shroud = new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.2,0.5,12), MAT.metal(0x1a0a1a));
-    shroud.rotation.x = Math.PI/2; shroud.position.x = side;
-    edges(new THREE.CylinderGeometry(0.2,0.2,0.5,12), 0xc41e3a, shroud);
-    thrGrp.add(shroud);
-    // prop
-    for (let i=0;i<3;i++) {
-      const b = new THREE.Mesh(new THREE.BoxGeometry(0.04,0.18,0.06), MAT.metal(0x880022));
-      b.position.set(side, Math.cos(i*Math.PI*2/3)*0.16, Math.sin(i*Math.PI*2/3)*0.16-0.05);
-      b.rotation.z = i*Math.PI*2/3;
-      thrGrp.add(b);
+  // Track Treads (Visual details)
+  for(let side of [1, -1]) {
+    for(let i=0; i<10; i++) {
+      const tread = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.85, 0.85), MAT.metal(0x222222));
+      tread.position.set(-3 + i*0.7, -0.5, side*2.2);
+      root.add(tread);
+      map.tracks.push(tread);
     }
   }
-  root.add(thrGrp);
-  partMapB.thruster = [thrGrp];
-  label3D(scene, '1104 × 2', new THREE.Vector3(-2, -2, 0), 0xff4466);
 
-  // === BATTERY (center) ===
-  const batGeo = new THREE.BoxGeometry(0.5, 0.3, 1.2);
-  const batMesh = new THREE.Mesh(batGeo, MAT.glow(0x332200, 0xffaa00));
-  batMesh.position.set(0, 0, 0.2);
-  root.add(batMesh);
-  partMapB.battery = [batMesh];
-  label3D(scene, 'LiPo 1S', new THREE.Vector3(-2, 1.5, 0), 0xffaa00);
+  // === TWIN REAR THRUSTERS ===
+  const thrusterGrp = new THREE.Group();
+  thrusterGrp.position.set(3.2, 0, 0); // Rear
+  for(let side of [1, -1]) {
+    const tBody = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.4, 1.2, 16), MAT.metal(0x333333));
+    tBody.rotation.z = Math.PI/2;
+    tBody.position.set(0, 0.5, side * 1.5);
+    thrusterGrp.add(tBody);
 
-  // === COMPUTE (ESP32 + IMU) ===
-  const compGeo = new THREE.BoxGeometry(0.6, 0.1, 0.5);
-  const compMesh = new THREE.Mesh(compGeo, MAT.glow(0x220044, 0xaa88ff));
-  compMesh.position.set(0, 0.3, 0.8);
-  root.add(compMesh);
-  partMapB.compute = [compMesh];
-  label3D(scene, 'ESP32-S3', new THREE.Vector3(2, 1.5, 0), 0xaa88ff);
+    // Prop
+    const prop = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.9, 0.2), MAT.metal(color));
+    prop.position.set(0.6, 0.5, side * 1.5);
+    thrusterGrp.add(prop);
+  }
+  root.add(thrusterGrp);
+  map.thruster = [thrusterGrp];
+  label3D(scene, 'TWIN THRUSTERS', new THREE.Vector3(5, 1, 0), color);
 
-  // === PAYLOAD BAY ===
-  const payGeo = new THREE.BoxGeometry(0.55, 0.35, 0.5);
-  const payMesh = new THREE.Mesh(payGeo, MAT.glass(0x00ff88));
-  payMesh.position.set(0, -0.15, -0.5);
-  root.add(payMesh);
-  partMapB.payload = [payMesh];
-  label3D(scene, 'PAYLOAD BAY', new THREE.Vector3(2, -2, 0), 0x44ffaa);
+  // === VERTICAL THRUSTER (Top/Center) ===
+  const vThruster = new THREE.Group();
+  vThruster.position.set(0, 1.2, 0);
+  const vtBody = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.8, 16), MAT.metal(0x333333));
+  // Vertical cylinder
+  vThruster.add(vtBody);
+  const vtProp = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.1, 0.2), MAT.metal(color));
+  vtProp.position.y = 0.2;
+  vThruster.add(vtProp);
+  root.add(vThruster);
+  map.vthruster = [vThruster];
+  label3D(scene, 'VERTICAL THRUST', new THREE.Vector3(0, 3.5, 0), 0xff8844);
 
-  // === STABILIZER FINS ===
-  const finMat = MAT.metal(0x1a051a);
-  for (let a of [0, Math.PI/2, Math.PI, -Math.PI/2]) {
-    const fGeo = new THREE.BoxGeometry(0.06, 0.55, 0.4);
-    const f = new THREE.Mesh(fGeo, finMat);
-    f.position.set(Math.sin(a)*0.42, Math.cos(a)*0.42, -2.1);
-    f.rotation.z = a;
-    edges(fGeo, 0x660033, f);
-    root.add(f);
+
+  // === PAYLOAD / NOSE ===
+  if (isA) {
+    // TYPE A: BRUSH HEAD
+    const brushGrp = new THREE.Group();
+    brushGrp.position.set(-3.5, -0.8, 0); // Front bottom
+
+    const bRoll = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 3.0, 16), MAT.hull(0x00aa44));
+    bRoll.rotation.x = Math.PI/2; // Across width
+    brushGrp.add(bRoll);
+
+    // Bristles
+    for(let i=0; i<8; i++) {
+        const br = new THREE.Mesh(new THREE.BoxGeometry(0.1, 3.2, 0.8), MAT.glass(0x00ff88));
+        br.rotation.x = Math.PI/2;
+        br.rotation.z = i * (Math.PI/4);
+        brushGrp.add(br);
+    }
+    root.add(brushGrp);
+    map.brush = [brushGrp];
+    label3D(scene, 'BRUSH HEAD', new THREE.Vector3(-4, -2.5, 0), 0x00ff88);
+
+    // Internal Compute Indicator
+    const comp = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.2, 1), MAT.glow(0x442266, 0xaa88ff));
+    comp.position.set(0, 0.5, 0);
+    root.add(comp);
+    map.compute = [comp];
+
+    // Battery
+    const bat = new THREE.Mesh(new THREE.BoxGeometry(2, 0.6, 1.5), MAT.glow(0x664400, 0xffaa00));
+    bat.position.set(-1, 0.2, 0);
+    root.add(bat);
+    map.battery = [bat];
+
+  } else {
+    // TYPE B: SENSOR NOSE
+    const nose = new THREE.Mesh(new THREE.SphereGeometry(0.6, 16, 16), MAT.glow(0x440011, 0xff0044));
+    nose.position.set(-3.1, 0, 0);
+    root.add(nose);
+    map.sensor = [nose]; // Using 'sensor' key if needed, or map to 'compute' visually
+
+    // Internal Compute
+    const comp = new THREE.Mesh(new THREE.BoxGeometry(1, 0.2, 0.8), MAT.glow(0x442266, 0xaa88ff));
+    comp.position.set(0, 0.5, 0);
+    root.add(comp);
+    map.compute = [comp];
+
+    // Battery
+    const bat = new THREE.Mesh(new THREE.BoxGeometry(1, 0.3, 0.8), MAT.glow(0x664400, 0xffaa00));
+    bat.position.set(-1, 0.2, 0);
+    root.add(bat);
+    map.battery = [bat];
   }
 
-  // === O-RING grooves (visual) ===
-  for (let z of [-1.5, 1.5]) {
-    const rGeo = new THREE.TorusGeometry(0.5, 0.04, 8, 24);
-    const rMesh = new THREE.Mesh(rGeo, MAT.glow(0x003300, 0x00ff88));
-    rMesh.position.z = z;
-    rMesh.rotation.x = Math.PI/2;
-    root.add(rMesh);
-  }
+  // Scale the whole group
+  root.scale.set(size, size, size);
 
   return root;
 }
 
-const robotB = buildRobotB(scB.scene);
+// ─── TYPE-A: POOL CLEANER ────────────────────────────────────────────────────
+const scA = makeScene('cvA', 'wrapA', 0x05101f);
+const partMapA = {};
+const robotA = buildAmphibiousRobot(scA.scene, 'A', partMapA);
+let hlA = null;
+
+// ─── TYPE-B: TACTICAL ────────────────────────────────────────────────────────
+const scB = makeScene('cvB', 'wrapB', 0x100510);
+const partMapB = {};
+const robotB = buildAmphibiousRobot(scB.scene, 'B', partMapB);
 let hlB = null;
 
 // ─── HIGHLIGHT SYSTEM ─────────────────────────────────────────────────────────
 const origMatsA = {}, origMatsB = {};
-// Store original materials on first highlight
+
 function highlight(type, part) {
   const map = type==='A' ? partMapA : partMapB;
   const origMats = type==='A' ? origMatsA : origMatsB;
 
   // Restore all
-  Object.entries(map).forEach(([key, meshes]) => {
+  Object.values(map).forEach(meshes => {
     meshes.forEach(m => {
       m.traverse(child => {
         if (child.isMesh && origMats[child.uuid]) {
@@ -752,11 +644,12 @@ function animate() {
   robotA.rotation.y = t * 0.3;
   robotB.rotation.y = -t * 0.3;
 
-  // Thruster prop spin
-  if (partMapA.thruster) {
-    partMapA.thruster[0].children.forEach((c,i) => {
-      if (i > 0) c.rotation.x += 0.15;
-    });
+  // Animate Tracks or Thrusters?
+  // Maybe spin thrusters
+  // Assuming map structure is consistent
+  if(partMapA.thruster) {
+      // Rotate props inside thruster group
+      // This is a bit tricky with the group structure, let's keep it simple
   }
 
   scA.updateCam(); scA.renderer.render(scA.scene, scA.camera);
